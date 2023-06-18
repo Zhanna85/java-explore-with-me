@@ -22,7 +22,7 @@ import java.util.List;
 @Validated
 public class StatController {
 
-    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private final StatService service;
 
     private void validateDate(LocalDateTime start, LocalDateTime end) {
@@ -47,10 +47,10 @@ public class StatController {
             @RequestParam(value = "end") @DateTimeFormat(pattern = DATE_PATTERN) LocalDateTime end,
 
             // Список uri для которых нужно выгрузить статистику, необязательный параметр.
-            @RequestParam(required = false) List<String> uris,
+            @RequestParam(defaultValue = "") List<String> uris,
 
             // Нужно ли учитывать только уникальные посещения (только с уникальным ip), Default value : false
-            @RequestParam(name = "unique", defaultValue = "false") Boolean unique
+            @RequestParam(defaultValue = "false") Boolean unique
             ) {
         validateDate(start, end);
         log.info("Get stats with parameters start date {} end date {} urls list {} unique {}", start, end, uris, unique);
