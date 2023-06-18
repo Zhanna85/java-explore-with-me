@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
 @Data
@@ -22,8 +23,7 @@ public class EndpointHit {
     private String ip; // IP-адрес пользователя, осуществившего запрос, example: 192.163.0.1;
 
     @NotNull
-    @FutureOrPresent
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp; // Дата и время, когда был совершен запрос к эндпоинту
     // (в формате "yyyy-MM-dd HH:mm:ss"), example: 2022-09-06 11:00:23.
 }
