@@ -37,11 +37,11 @@ class StatServiceImplTest {
     @BeforeEach
     void setUp() {
         dto = new EndpointHit("ewm-main-service", "/events/1", "192.163.0.1",
-                LocalDateTime.of(2022, 9, 6, 11, 0, 0));
+                "2022-09-06 11:00:23");
         dto2 = new EndpointHit("ewm-main-service", "/events/2", "192.163.0.1",
-                LocalDateTime.of(2022, 9, 6, 11, 0, 23));
+                "2022-09-06 11:00:23");
         dto3 = new EndpointHit("ewm-main-service", "/events/2", "192.163.0.1",
-                LocalDateTime.of(2022, 9, 6, 11, 1, 23));
+                "2022-09-06 11:00:23");
     }
 
     @Test
@@ -66,8 +66,8 @@ class StatServiceImplTest {
                 List.of(), false));
 
         assertEquals(2, result.size());
-        assertEquals(1, result.get(0).getHits());
-        assertEquals(2, result.get(1).getHits());
+        assertEquals(2, result.get(0).getHits());
+        assertEquals(1, result.get(1).getHits());
 
         result = new ArrayList<>(service.getStats(
                 LocalDateTime.of(2022, 9, 6, 0, 0, 0),

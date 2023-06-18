@@ -14,7 +14,8 @@ public interface StatRepository extends JpaRepository<StatSvc, Integer> {
             "select new ru.practicum.dto.ViewStats(st.app, st.uri, count(distinct st.ip))" +
             "from StatSvc as st " +
             "where st.timestamp between ?1 and ?2 " +
-            "group by st.app, st.uri"
+            "group by st.app, st.uri " +
+            "order by count(distinct st.ip) desc"
     )
     List<ViewStats> getStatsWithUniqueIp(LocalDateTime start, LocalDateTime end);
 
@@ -22,7 +23,8 @@ public interface StatRepository extends JpaRepository<StatSvc, Integer> {
             "select new ru.practicum.dto.ViewStats(st.app, st.uri, count(st.ip))" +
             "from StatSvc as st " +
             "where st.timestamp between ?1 and ?2 " +
-            "group by st.app, st.uri"
+            "group by st.app, st.uri " +
+            "order by count(st.ip) desc"
     )
     List<ViewStats> getStats(LocalDateTime start, LocalDateTime end);
 
@@ -31,7 +33,8 @@ public interface StatRepository extends JpaRepository<StatSvc, Integer> {
             "from StatSvc as st " +
             "where st.timestamp between ?1 and ?2 " +
             "and st.uri in ?3 " +
-            "group by st.app, st.uri"
+            "group by st.app, st.uri " +
+            "order by count(distinct st.ip) desc"
     )
     List<ViewStats> getStatsByUrisListWithUniqueIp(LocalDateTime start, LocalDateTime end, List<String> uris);
 
@@ -40,7 +43,8 @@ public interface StatRepository extends JpaRepository<StatSvc, Integer> {
             "from StatSvc as st " +
             "where st.timestamp between ?1 and ?2 " +
             "and st.uri in ?3 " +
-            "group by st.app, st.uri"
+            "group by st.app, st.uri " +
+            "order by count(st.ip) desc"
     )
     List<ViewStats> getStatsByUrisList(LocalDateTime start, LocalDateTime end, List<String> uris);
 }

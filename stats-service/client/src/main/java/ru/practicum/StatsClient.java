@@ -8,7 +8,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import ru.practicum.dto.EndpointHit;
 import ru.practicum.dto.ViewStats;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -38,7 +37,7 @@ public class StatsClient {
                 .block();
     }
 
-    public void saveStats(String app, String uri, String ip, LocalDateTime timestamp) {
+    public void saveStats(String app, String uri, String ip, String timestamp) {
         final EndpointHit endpointHit = new EndpointHit(app, uri, ip, timestamp);
 
         this.client.post()
