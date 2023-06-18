@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class StatServiceImpl implements StatService{
+public class StatServiceImpl implements StatService {
 
     private final StatRepository repository;
 

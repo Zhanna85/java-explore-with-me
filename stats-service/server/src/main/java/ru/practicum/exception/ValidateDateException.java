@@ -1,6 +1,6 @@
 package ru.practicum.exception;
 
-public class ValidateDateException extends RuntimeException{
+public class ValidateDateException extends RuntimeException {
 
     public ValidateDateException(String message) {
         super(message);
