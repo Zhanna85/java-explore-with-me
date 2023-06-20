@@ -1,10 +1,7 @@
 package ru.practicum.model;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.dto.EndpointHit;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import ru.practicum.dto.dto.EndpointHit;
 
 @UtilityClass
 public class StatMapper {
@@ -14,8 +11,7 @@ public class StatMapper {
         newStat.setApp(dto.getApp());
         newStat.setUri(dto.getUri());
         newStat.setIp(dto.getIp());
-        LocalDateTime time = LocalDateTime.parse(dto.getTimestamp(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        newStat.setTimestamp(time);
+        newStat.setTimestamp(dto.getTimestamp());
 
         return newStat;
     }

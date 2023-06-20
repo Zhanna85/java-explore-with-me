@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.EndpointHit;
-import ru.practicum.dto.ViewStats;
+import ru.practicum.dto.dto.EndpointHit;
+import ru.practicum.dto.dto.ViewStats;
 import ru.practicum.model.StatSvc;
 import ru.practicum.repository.StatRepository;
 
@@ -37,11 +37,11 @@ class StatServiceImplTest {
     @BeforeEach
     void setUp() {
         dto = new EndpointHit("ewm-main-service", "/events/1", "192.163.0.1",
-                "2022-09-06 11:00:23");
+                LocalDateTime.of(2022, 9, 6, 11, 0, 0));
         dto2 = new EndpointHit("ewm-main-service", "/events/2", "192.163.0.1",
-                "2022-09-06 11:00:23");
+                LocalDateTime.of(2022, 9, 6, 11, 0, 23));
         dto3 = new EndpointHit("ewm-main-service", "/events/2", "192.163.0.1",
-                "2022-09-06 11:00:23");
+                LocalDateTime.of(2022, 9, 6, 11, 1, 23));
     }
 
     @Test

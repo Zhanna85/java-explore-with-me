@@ -2,10 +2,11 @@ package ru.practicum.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.EndpointHit;
-import ru.practicum.dto.ViewStats;
+import ru.practicum.dto.dto.EndpointHit;
+import ru.practicum.dto.dto.ViewStats;
 import ru.practicum.model.StatMapper;
 import ru.practicum.model.StatSvc;
 import ru.practicum.repository.StatRepository;
@@ -30,17 +31,19 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "hits");
+
         if (uris.isEmpty()) {
             if (unique) {
-                return repository.getStatsWithUniqueIp(start, end);
+                return repository.getStatsWithUniqueIp(start, end, sort);
             }
 
-            return repository.getStats(start, end);
+            return repository.getStats(start, end, sort);
         }
         if (unique) {
-            return repository.getStatsByUrisListWithUniqueIp(start, end, uris);
+            return repository.getStatsByUrisListWithUniqueIp(start, end, uris, sort);
         }
 
-        return repository.getStatsByUrisList(start, end, uris);
+        return repository.getStatsByUrisList(start, end, uris, sort);
     }
 }

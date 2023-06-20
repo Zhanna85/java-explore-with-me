@@ -2,18 +2,20 @@ package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.EndpointHit;
-import ru.practicum.dto.ViewStats;
+import ru.practicum.dto.dto.EndpointHit;
+import ru.practicum.dto.dto.ViewStats;
 import ru.practicum.exception.ValidateDateException;
 import ru.practicum.service.StatService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
+
+import static ru.practicum.dto.Constant.DATE_PATTERN;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,10 +40,10 @@ public class StatController {
     @GetMapping("/stats")
     public Collection<ViewStats> getViewStats(
             // Дата и время начала диапазона за который нужно выгрузить статистику (в формате "yyyy-MM-dd HH:mm:ss")
-            @RequestParam(value = "start") String start,
+            @RequestParam(value = "start") @DateTimeFormat(pattern = DATE_PATTERN) LocalDateTime start,
 
             // Дата и время конца диапазона за который нужно выгрузить статистику (в формате "yyyy-MM-dd HH:mm:ss")
-            @RequestParam(value = "end") String end,
+            @RequestParam(value = "end") @DateTimeFormat(pattern = DATE_PATTERN) LocalDateTime end,
 
             // Список uri для которых нужно выгрузить статистику, необязательный параметр.
             @RequestParam(defaultValue = "") List<String> uris,
@@ -50,11 +52,8 @@ public class StatController {
             @RequestParam(defaultValue = "false") Boolean unique
             ) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startDate = LocalDateTime.parse(start, formatter);
-        LocalDateTime endDate = LocalDateTime.parse(end, formatter);
-        validateDate(startDate, endDate);
+        validateDate(start, end);
         log.info("Get stats with parameters start date {} end date {} urls list {} unique {}", start, end, uris, unique);
-        return service.getStats(startDate, endDate, uris, unique);
+        return service.getStats(start, end, uris, unique);
     }
 }
