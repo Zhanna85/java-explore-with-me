@@ -5,6 +5,8 @@ import ru.practicum.events.model.Event;
 import ru.practicum.requests.model.ParticipationRequest;
 import ru.practicum.users.model.User;
 
+import static ru.practicum.requests.EventRequestStatus.CONFIRMED;
+
 @UtilityClass
 public class ParticipationRequestMapper {
 
@@ -22,6 +24,10 @@ public class ParticipationRequestMapper {
         ParticipationRequest request = new ParticipationRequest();
         request.setEvent(event);
         request.setRequester(user);
+        //если для события отключена пре-модерация запросов на участие, то запрос должен автоматически перейти в состояние подтвержденного
+        if (!event.getRequestModeration()) {
+            request.setStatus(CONFIRMED);
+        }
 
         return request;
     }

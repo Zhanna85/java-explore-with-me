@@ -6,7 +6,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.PaginationSetup;
+import ru.practicum.categories.model.Category;
+import ru.practicum.categories.repository.CategoryRepository;
 import ru.practicum.events.dto.*;
+import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.handler.NotFoundException;
 import ru.practicum.handler.ViolationDateException;
@@ -28,6 +31,7 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
     private void validDate(LocalDateTime eventDate) {
         //дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента
@@ -48,12 +52,14 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventFullDto saveEventByIdUser(Long userId, NewEventDto eventDto) {
+        LocalDateTime eventDate = eventDto.getEventDate();
+        validDate(eventDate);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
-        LocalDateTime eventDate = eventDto.getEventDate();
-
-        validDate(eventDate);
-        return mapToEventFullDto(eventRepository.save(mapToNewEvent(eventDto, user)), user);
+        Category category = categoryRepository.findById(eventDto.getCategory())
+                .orElseThrow(() -> new NotFoundException("Category with id=" + userId + " was not found"));;
+        Event event = eventRepository.save(mapToNewEvent(eventDto, user, category));
+        return mapToEventFullDto(event);
     }
 
     @Override

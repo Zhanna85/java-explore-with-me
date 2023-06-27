@@ -10,7 +10,6 @@ import ru.practicum.users.dto.UserDto;
 import ru.practicum.users.service.UserService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Collection;
 import java.util.List;
@@ -28,12 +27,12 @@ public class AdminUserController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public UserDto saveUser(@Valid @RequestBody NewUserDto userDto) {
         log.info("Creating user {}", userDto);
-        return userService.saveUser(userDto);
+        return userService.createUser(userDto);
     }
 
     @GetMapping()
     @ResponseStatus(value = HttpStatus.OK)
-    public Collection<UserDto> getUsers(@RequestParam(defaultValue = " ") List<Long> ids,
+    public Collection<UserDto> getUsers(@RequestParam(defaultValue = "") List<Long> ids,
                                         @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
                                         @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         log.info("Get users by ids {}. Parameters: from {}, size {}", ids, from, size);

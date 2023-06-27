@@ -12,11 +12,9 @@ import static ru.practicum.users.dto.UserMapper.toUserShortDto;
 @UtilityClass
 public class EventMapper {
 
-    public static Event mapToNewEvent(NewEventDto eventDto, User user) {
+    public static Event mapToNewEvent(NewEventDto eventDto, User user, Category category) {
         Event event = new Event();
         event.setAnnotation(eventDto.getAnnotation());
-        Category category = new Category();
-        category.setId(eventDto.getCategory());
         event.setCategory(category);
         event.setDescription(eventDto.getDescription());
         event.setEventDate(eventDto.getEventDate());
@@ -31,15 +29,16 @@ public class EventMapper {
         return event;
     }
 
-    public static EventFullDto mapToEventFullDto(Event event, User user) {
+    public static EventFullDto mapToEventFullDto(Event event) {
         EventFullDto eventFullDto = new EventFullDto();
         eventFullDto.setAnnotation(event.getAnnotation());
         eventFullDto.setCategory(toCategoryDto(event.getCategory()));
         eventFullDto.setCreatedOn(event.getCreatedOn());
         eventFullDto.setDescription(event.getDescription());
+        eventFullDto.setConfirmedRequests(event.getConfirmedRequests());
         eventFullDto.setEventDate(event.getEventDate());
         eventFullDto.setId(event.getId());
-        eventFullDto.setInitiator(toUserShortDto(user));
+        eventFullDto.setInitiator(toUserShortDto(event.getInitiator()));
         Location location = new Location(event.getLat(), event.getLon());
         eventFullDto.setLocation(location);
         eventFullDto.setPaid(event.getPaid());
@@ -49,7 +48,7 @@ public class EventMapper {
         eventFullDto.setState(event.getState());
         eventFullDto.setTitle(event.getTitle());
         /*добавить
-        eventFullDto.setConfirmedRequests();
+
         eventFullDto.setViews();*/
 
         return eventFullDto;
@@ -59,13 +58,13 @@ public class EventMapper {
         EventShortDto shortDto = new EventShortDto();
         shortDto.setAnnotation(event.getAnnotation());
         shortDto.setCategory(toCategoryDto(event.getCategory()));
+        shortDto.setConfirmedRequests(event.getConfirmedRequests());
         shortDto.setEventDate(event.getEventDate());
         shortDto.setId(event.getId());
         shortDto.setInitiator(toUserShortDto(event.getInitiator()));
         shortDto.setPaid(event.getPaid());
         shortDto.setTitle(event.getTitle());
         /*добавить
-        shortDto.setConfirmedRequests();
         shortDto.setViews();*/
 
         return shortDto;

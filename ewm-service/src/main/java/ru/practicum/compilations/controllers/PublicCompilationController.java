@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.compilations.dto.CompilationDto;
 import ru.practicum.compilations.service.CompilationService;
 
+import javax.validation.constraints.Min;
 import java.util.Collection;
 
 @RestController
@@ -24,10 +25,10 @@ public class PublicCompilationController {
             @RequestParam Boolean pinned,
 
             // количество элементов, которые нужно пропустить для формирования текущего набора
-            @RequestParam (value = "from", defaultValue = "0") Integer from,
+            @RequestParam (value = "from", defaultValue = "0") @Min(0) Integer from,
 
             // количество элементов в наборе
-            @RequestParam(value = "size", defaultValue = "10") Integer size) {
+            @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
 
         log.info("Get compilations with parameters pinned {} from {} size {}", pinned, from, size);
         return serviceCompilation.getAllCompilation(pinned, from, size);

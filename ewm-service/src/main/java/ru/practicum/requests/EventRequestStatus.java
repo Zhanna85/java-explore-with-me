@@ -1,5 +1,8 @@
 package ru.practicum.requests;
 
 public enum EventRequestStatus {
-    CONFIRMED, REJECTED, PENDING
+    // Статусы заявки на участие в событии
+    CONFIRMED, // Подтвержденный
+    REJECTED, // Отклоненный
+    PENDING // Ожидает рассмотрения
 }

@@ -36,7 +36,7 @@ public class Event {
     @Column(name = "annotation", nullable = false, length = 2000)
     private String annotation; // Краткое описание;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category; // категория к которой относится событие;
 
@@ -59,6 +59,9 @@ public class Event {
     @Column(name = "participant_limit", nullable = false)
     // Ограничение на количество участников. Значение 0 - означает отсутствие ограничения. Default: 0;
     private Integer participantLimit;
+
+    @Column(name = "confirmed_requests")
+    private Integer confirmedRequests; // Количество одобренных заявок на участие в данном событии;
 
     /* Нужна ли пре-модерация заявок на участие. Если true, то все заявки будут ожидать подтверждения инициатором события.
        Если false - то будут подтверждаться автоматически. Default: true*/

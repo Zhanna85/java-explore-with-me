@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import ru.practicum.events.model.Location;
 
 import javax.validation.constraints.Future;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 
 import static ru.practicum.Constants.PATTERN_DATE;
 
+@ToString
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,7 +37,6 @@ public class NewEventDto {
     @JsonFormat(pattern = PATTERN_DATE)
     private LocalDateTime eventDate; // Дата и время на которые намечено событие (в формате "yyyy-MM-dd HH:mm:ss");
 
-    @NotBlank
     private Location location; // Широта и долгота места проведения события;
     private Boolean paid = false; // Нужно ли оплачивать участие в событии. Default: false;
 

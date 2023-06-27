@@ -1,10 +1,10 @@
 package ru.practicum.users.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
+@Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {

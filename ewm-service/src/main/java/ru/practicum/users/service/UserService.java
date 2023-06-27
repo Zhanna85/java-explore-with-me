@@ -6,7 +6,7 @@ import ru.practicum.users.dto.UserDto;
 import java.util.List;
 
 public interface UserService {
-    UserDto saveUser(NewUserDto userDto);
+    UserDto createUser(NewUserDto userDto);
 
     List<UserDto> getUsers(List<Long> ids, Integer from, Integer size);
 

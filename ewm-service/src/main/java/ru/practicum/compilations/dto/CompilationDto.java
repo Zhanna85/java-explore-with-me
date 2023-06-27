@@ -1,10 +1,12 @@
 package ru.practicum.compilations.dto;
 
+import lombok.Setter;
 import ru.practicum.events.dto.EventShortDto;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Setter
 public class CompilationDto {
 
     private Set<EventShortDto> events = new HashSet<>(); // Список событий входящих в подборку;

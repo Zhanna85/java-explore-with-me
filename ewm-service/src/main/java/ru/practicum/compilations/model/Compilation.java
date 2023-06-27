@@ -25,8 +25,8 @@ public class Compilation {
     )
     private Long id;  // Идентификатор;
 
-    @Column(name = "pinned", nullable = false, columnDefinition = "true")
-    private Boolean pinned; // Закреплена ли подборка на главной странице сайта;
+    @Column(name = "pinned", nullable = false)
+    private Boolean pinned = false; // Закреплена ли подборка на главной странице сайта;
 
     @Column(name = "title", nullable = false)
     private String title; // Заголовок подборки.

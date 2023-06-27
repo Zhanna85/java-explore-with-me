@@ -6,6 +6,7 @@ import ru.practicum.PaginationSetup;
 import ru.practicum.events.model.Event;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
@@ -17,4 +18,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                     "where e.initiator.id = :userId"
     )
     List<Event> findAllWithInitiatorByInitiatorId(Long userId, PaginationSetup paginationSetup);
+
+    Optional<Event> findByIdAndInitiatorId(Long eventId, Long initiatorId);
 }
