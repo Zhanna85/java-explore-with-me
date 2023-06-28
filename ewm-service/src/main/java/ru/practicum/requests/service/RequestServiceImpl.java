@@ -17,10 +17,11 @@ import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ru.practicum.events.EventState.PUBLISHED;
 import static ru.practicum.requests.EventRequestStatus.*;
@@ -31,14 +32,14 @@ import static ru.practicum.requests.dto.ParticipationRequestMapper.mapToParticip
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class RequestServiceImpl implements RequestService{
+public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
     private void validParticipantLimit(Event event) {
-        if (event.getParticipantLimit() > 0 && event.getConfirmedRequests().equals(event.getParticipantLimit()) ) {
+        if (event.getParticipantLimit() > 0 && event.getConfirmedRequests().equals(event.getParticipantLimit())) {
             throw new NotEmptyException("The event has reached the limit of participation requests.");
         }
     }
@@ -50,6 +51,57 @@ public class RequestServiceImpl implements RequestService{
         if (isStatusPending) {
             throw new NotEmptyException("The status can be changed only for requests that are in the PENDING state.");
         }
+    }
+
+    private EventRequestStatusUpdateResult saveConfirmedStatus(List<ParticipationRequest> requests, Event event) {
+        // нельзя подтвердить заявку, если уже достигнут лимит по заявкам на данное событие (Ожидается код ошибки 409)
+        validParticipantLimit(event);
+        int limitUpdate = event.getParticipantLimit() - event.getConfirmedRequests();
+
+        if (requests.size() <= limitUpdate) {
+            requests.forEach(request -> request.setStatus(CONFIRMED));
+            requestRepository.saveAll(requests);
+            event.setConfirmedRequests(event.getConfirmedRequests() + requests.size());
+            eventRepository.save(event);
+            return new EventRequestStatusUpdateResult(requests
+                    .stream()
+                    .map(ParticipationRequestMapper::mapToParticipationRequestDto)
+                    .collect(Collectors.toList()), List.of());
+        }
+        /*учитываем условие если при подтверждении данной заявки, лимит заявок для события исчерпан,
+        то все неподтверждённые заявки необходимо отклонить*/
+        List<ParticipationRequest> confirmedRequests = requests.stream()
+                .limit(limitUpdate)
+                .collect(Collectors.toList());
+
+        List<ParticipationRequest> rejectedRequests = requests.stream()
+                .filter(element -> !confirmedRequests.contains(element))
+                .peek(request -> request.setStatus(REJECTED))
+                .collect(Collectors.toList());
+
+        confirmedRequests.forEach(request -> request.setStatus(CONFIRMED));
+        event.setConfirmedRequests(event.getConfirmedRequests() + confirmedRequests.size());
+        eventRepository.save(event);
+        requestRepository.saveAll(Stream.of(confirmedRequests, rejectedRequests)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList()));
+        return new EventRequestStatusUpdateResult(confirmedRequests
+                .stream()
+                .map(ParticipationRequestMapper::mapToParticipationRequestDto)
+                .collect(Collectors.toList()),
+                rejectedRequests.stream()
+                .map(ParticipationRequestMapper::mapToParticipationRequestDto)
+                .collect(Collectors.toList()));
+    }
+
+    private EventRequestStatusUpdateResult saveRejectedStatus(List<ParticipationRequest> requests, Event event) {
+        requests.forEach(request -> request.setStatus(REJECTED));
+        requestRepository.saveAll(requests);
+        List<ParticipationRequestDto> rejectedRequests = requests
+                .stream()
+                .map(ParticipationRequestMapper::mapToParticipationRequestDto)
+                .collect(Collectors.toList());
+        return new EventRequestStatusUpdateResult(List.of(), rejectedRequests);
     }
 
     @Override
@@ -64,12 +116,10 @@ public class RequestServiceImpl implements RequestService{
         return Collections.emptyList();
     }
 
+    @Transactional
     @Override
     public EventRequestStatusUpdateResult updateEventRequestStatus(Long userId, Long eventId,
                                                                    EventRequestStatusUpdateRequest dtoRequest) {
-        /*
-
-        если при подтверждении данной заявки, лимит заявок для события исчерпан, то все неподтверждённые заявки необходимо отклонить*/
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found."));
         // если для события лимит заявок равен 0 или отключена пре-модерация заявок, то подтверждение заявок не требуется
@@ -80,44 +130,18 @@ public class RequestServiceImpl implements RequestService{
 
         List<ParticipationRequest> requests = requestRepository.findAllByEventIdAndIdIn(eventId,
                 dtoRequest.getRequestIds());
+
         // статус можно изменить только у заявок, находящихся в состоянии ожидания (Ожидается код ошибки 409)
         validRequestStatus(requests);
 
         switch (dtoRequest.getStatus()) {
             case CONFIRMED:
-                // нельзя подтвердить заявку, если уже достигнут лимит по заявкам на данное событие (Ожидается код ошибки 409)
-                validParticipantLimit(event);
-                int limitUpdate = event.getParticipantLimit() - event.getConfirmedRequests();
-                List<ParticipationRequestDto> confirmedRequests = null;
-                if (requests.size() <= limitUpdate) {
-                    requests.forEach(request -> request.setStatus(CONFIRMED));
-                    requestRepository.saveAll(requests);
-                    confirmedRequests = requests
-                            .stream()
-                            .map(ParticipationRequestMapper::mapToParticipationRequestDto)
-                            .collect(Collectors.toList());
-                    event.setConfirmedRequests(event.getConfirmedRequests()+requests.size());
-                    eventRepository.save(event);
-                } else {
-                    confirmedRequests = requests
-                            .stream()
-                            .limit(limitUpdate)
-                            .forEach(request -> request.setStatus(CONFIRMED))
-                            .map(ParticipationRequestMapper::mapToParticipationRequestDto)
-                            .collect(Collectors.toList());
-                }
-                return new EventRequestStatusUpdateResult(confirmedRequests, List.of());
+                return saveConfirmedStatus(requests, event);
+
             case REJECTED:
-                requests.forEach(request -> request.setStatus(REJECTED));
-                requestRepository.saveAll(requests);
-                List<ParticipationRequestDto> rejectedRequests = requests
-                        .stream()
-                        .map(ParticipationRequestMapper::mapToParticipationRequestDto)
-                        .collect(Collectors.toList());
-                return new EventRequestStatusUpdateResult(List.of(), rejectedRequests);
+                return saveRejectedStatus(requests, event);
             default:
                 throw new NotEmptyException("Unknown state: " + dtoRequest.getStatus());
-
         }
     }
 
@@ -157,7 +181,7 @@ public class RequestServiceImpl implements RequestService{
         ParticipationRequest newRequest = requestRepository.save(mapToNewParticipationRequest(event, user));
 
         if (newRequest.getStatus() == CONFIRMED) {
-            event.setConfirmedRequests(event.getConfirmedRequests()+1);
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);
         }
 
