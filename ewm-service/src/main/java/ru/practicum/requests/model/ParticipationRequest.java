@@ -13,7 +13,7 @@ import ru.practicum.users.model.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-import static ru.practicum.Constants.PATTERN_CREATED_DATE;
+import static ru.practicum.util.Constants.PATTERN_CREATED_DATE;
 import static ru.practicum.requests.EventRequestStatus.PENDING;
 
 @Entity

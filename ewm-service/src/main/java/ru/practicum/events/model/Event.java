@@ -13,7 +13,7 @@ import ru.practicum.users.model.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-import static ru.practicum.Constants.PATTERN_DATE;
+import static ru.practicum.util.Constants.PATTERN_DATE;
 import static ru.practicum.events.EventState.PENDING;
 
 @Entity
@@ -61,7 +61,7 @@ public class Event {
     private Integer participantLimit;
 
     @Column(name = "confirmed_requests")
-    private Integer confirmedRequests; // Количество одобренных заявок на участие в данном событии;
+    private Integer confirmedRequests = 0; // Количество одобренных заявок на участие в данном событии;
 
     /* Нужна ли пре-модерация заявок на участие. Если true, то все заявки будут ожидать подтверждения инициатором события.
        Если false - то будут подтверждаться автоматически. Default: true*/

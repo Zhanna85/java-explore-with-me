@@ -13,11 +13,12 @@ import ru.practicum.events.service.EventService;
 import javax.validation.Valid;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
-import static ru.practicum.Constants.PATTERN_DATE;
+import static ru.practicum.util.Constants.PATTERN_DATE;
 
 @RestController
 @RequestMapping("/admin/events")
@@ -46,11 +47,11 @@ public class AdminEventController {
 
             // дата и время не позже которых должно произойти событие
             @RequestParam(value = "rangeEnd") @Future @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeEnd,
-            @RequestParam(value = "from", defaultValue = "0") Integer from,
-            @RequestParam(value = "size", defaultValue = "10") Integer size) {
+            @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         log.info("Get events users {} with parameters: states {}, categories {}, rangeStart {}, rangeEnd {}, from {}, " +
                 "size {}", users, states, categories, rangeStart, rangeEnd, from, size);
-        return eventService.getAllEvents(users, states, categories, rangeStart, rangeEnd, from, size);
+        return eventService.getAllEventsAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")

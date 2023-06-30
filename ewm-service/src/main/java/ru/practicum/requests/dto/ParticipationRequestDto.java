@@ -6,7 +6,7 @@ import ru.practicum.requests.EventRequestStatus;
 
 import java.time.LocalDateTime;
 
-import static ru.practicum.Constants.PATTERN_CREATED_DATE;
+import static ru.practicum.util.Constants.PATTERN_CREATED_DATE;
 
 @Setter
 @ToString

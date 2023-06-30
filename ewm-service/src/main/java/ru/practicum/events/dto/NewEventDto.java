@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-import static ru.practicum.Constants.PATTERN_DATE;
+import static ru.practicum.util.Constants.PATTERN_DATE;
 
 @ToString
 @Getter

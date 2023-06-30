@@ -43,13 +43,12 @@ public class EventMapper {
         eventFullDto.setLocation(location);
         eventFullDto.setPaid(event.getPaid());
         eventFullDto.setParticipantLimit(event.getParticipantLimit());
-        eventFullDto.setPublishedOn(event.getPublishedOn());
+
+        if (event.getPublishedOn() != null) {
+        eventFullDto.setPublishedOn(event.getPublishedOn());}
         eventFullDto.setRequestModeration(event.getRequestModeration());
         eventFullDto.setState(event.getState());
         eventFullDto.setTitle(event.getTitle());
-        /*добавить
-
-        eventFullDto.setViews();*/
 
         return eventFullDto;
     }

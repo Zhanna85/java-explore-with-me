@@ -5,17 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.PaginationSetup;
+import ru.practicum.util.PaginationSetup;
 import ru.practicum.compilations.dto.CompilationDto;
 import ru.practicum.compilations.dto.CompilationMapper;
 import ru.practicum.compilations.dto.NewCompilationDto;
 import ru.practicum.compilations.model.Compilation;
 import ru.practicum.compilations.repository.CompilationRepository;
+import ru.practicum.events.repository.EventRepository;
 import ru.practicum.handler.NotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.util.Messages.*;
 import static ru.practicum.compilations.dto.CompilationMapper.mapToCompilation;
 import static ru.practicum.compilations.dto.CompilationMapper.mapToCompilationDto;
 
@@ -26,9 +28,11 @@ import static ru.practicum.compilations.dto.CompilationMapper.mapToCompilationDt
 public class CompilationServiceImpl implements CompilationService{
 
     private final CompilationRepository compilationRepository;
+    private final EventRepository eventRepository;
 
     @Override
     public List<CompilationDto> getAllCompilation(Boolean pinned, Integer from, Integer size) {
+        log.info(GET_MODELS.getMessage());
         if (pinned == null) {
            return compilationRepository.findAll(new PaginationSetup(from, size, Sort.unsorted())).getContent().stream()
                     .map(CompilationMapper::mapToCompilationDto)
@@ -45,25 +49,28 @@ public class CompilationServiceImpl implements CompilationService{
     public CompilationDto getCompilationById(Long id) {
         Compilation compilation = compilationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Compilation with id=" + id + " was not found"));
-
+        log.info(GET_MODEL_BY_ID.getMessage(), id);
         return mapToCompilationDto(compilation);
     }
 
     @Transactional
     @Override
     public CompilationDto saveCompilation(NewCompilationDto compilationDto) {
-        Compilation compilation = compilationRepository.save(mapToCompilation(compilationDto));
-        // добавить список ид.
+        Compilation compilation = mapToCompilation(compilationDto);
 
-        return mapToCompilationDto(compilation);
+        if (compilationDto.getEvents() != null) {
+            compilation.setEvents(eventRepository.findAllById(compilationDto.getEvents()));
+        }
+        log.info(SAVE_MODEL.getMessage(), compilation);
+        return mapToCompilationDto(compilationRepository.save(compilation));
     }
 
     @Transactional
     @Override
     public void deleteCompilationById(Long compId) {
+        log.info(DELETE_MODEL.getMessage(), compId);
         compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId +" was not found"));
-
         compilationRepository.deleteById(compId);
     }
 
@@ -75,15 +82,16 @@ public class CompilationServiceImpl implements CompilationService{
         Boolean pinned = compilationDto.getPinned();
         String title = compilationDto.getTitle();
 
-        // обновление списка
-
+        if (compilationDto.getEvents() != null) {
+            compilation.setEvents(eventRepository.findAllById(compilationDto.getEvents()));
+        }
         if (pinned != null) {
             compilation.setPinned(pinned);
         }
         if (title != null) {
             compilation.setTitle(title);
         }
-
+        log.info(UPDATE_MODEL.getMessage(), compilation);
         return mapToCompilationDto(compilationRepository.save(compilation));
     }
 }

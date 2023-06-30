@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
+import ru.practicum.events.model.Event;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "compilations")
@@ -30,4 +32,15 @@ public class Compilation {
 
     @Column(name = "title", nullable = false)
     private String title; // Заголовок подборки.
+
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(
+            name = "compilation_events",
+            joinColumns = @JoinColumn(name = "compilation_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
+    private List<Event> events;
 }

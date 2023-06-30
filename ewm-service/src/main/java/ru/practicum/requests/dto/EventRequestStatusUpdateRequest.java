@@ -1,4 +1,4 @@
-package ru.practicum.events.dto;
+package ru.practicum.requests.dto;
 
 import lombok.Data;
 import ru.practicum.requests.EventRequestStatus;

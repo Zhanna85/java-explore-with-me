@@ -2,6 +2,9 @@ package ru.practicum.compilations.dto;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.compilations.model.Compilation;
+import ru.practicum.events.dto.EventMapper;
+
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class CompilationMapper {
@@ -16,7 +19,11 @@ public class CompilationMapper {
 
     public static CompilationDto mapToCompilationDto(Compilation compilation) {
         CompilationDto dto = new CompilationDto();
-        // добавить dto.setEvents();
+        if (compilation.getEvents() != null)
+            dto.setEvents(compilation.getEvents()
+                    .stream()
+                    .map(EventMapper::mapToEventShortDto)
+                    .collect(Collectors.toList()));
         dto.setId(compilation.getId());
         dto.setPinned(compilation.getPinned());
         dto.setTitle(compilation.getTitle());

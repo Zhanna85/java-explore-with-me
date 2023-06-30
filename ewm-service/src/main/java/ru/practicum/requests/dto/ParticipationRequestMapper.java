@@ -24,11 +24,11 @@ public class ParticipationRequestMapper {
         ParticipationRequest request = new ParticipationRequest();
         request.setEvent(event);
         request.setRequester(user);
+
         //если для события отключена пре-модерация запросов на участие, то запрос должен автоматически перейти в состояние подтвержденного
         if (!event.getRequestModeration()) {
             request.setStatus(CONFIRMED);
         }
-
         return request;
     }
 }

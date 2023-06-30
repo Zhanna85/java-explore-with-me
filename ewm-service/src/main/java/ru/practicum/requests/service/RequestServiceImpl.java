@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.events.dto.EventRequestStatusUpdateRequest;
-import ru.practicum.events.dto.EventRequestStatusUpdateResult;
+import ru.practicum.requests.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.requests.dto.EventRequestStatusUpdateResult;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
-import ru.practicum.handler.NotEmptyException;
+import ru.practicum.handler.ValidateException;
 import ru.practicum.handler.NotFoundException;
 import ru.practicum.requests.dto.ParticipationRequestDto;
 import ru.practicum.requests.dto.ParticipationRequestMapper;
@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static ru.practicum.util.Messages.*;
 import static ru.practicum.events.EventState.PUBLISHED;
 import static ru.practicum.requests.EventRequestStatus.*;
 import static ru.practicum.requests.dto.ParticipationRequestMapper.mapToNewParticipationRequest;
@@ -40,7 +41,7 @@ public class RequestServiceImpl implements RequestService {
 
     private void validParticipantLimit(Event event) {
         if (event.getParticipantLimit() > 0 && event.getConfirmedRequests().equals(event.getParticipantLimit())) {
-            throw new NotEmptyException("The event has reached the limit of participation requests.");
+            throw new ValidateException("The event has reached the limit of participation requests.");
         }
     }
 
@@ -49,7 +50,7 @@ public class RequestServiceImpl implements RequestService {
                 .anyMatch(request -> !request.getStatus().equals(PENDING));
 
         if (isStatusPending) {
-            throw new NotEmptyException("The status can be changed only for requests that are in the PENDING state.");
+            throw new ValidateException("The status can be changed only for requests that are in the PENDING state.");
         }
     }
 
@@ -106,6 +107,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ParticipationRequestDto> getParticipationRequest(Long userId, Long eventId) {
+        log.info(GET_MODELS.getMessage());
         // Получить информацию о запросах на участие в событии текущего пользователя
         if (eventRepository.findByIdAndInitiatorId(eventId, userId).isPresent()) {
             return requestRepository.findAllByEventId(eventId).stream()
@@ -122,9 +124,10 @@ public class RequestServiceImpl implements RequestService {
                                                                    EventRequestStatusUpdateRequest dtoRequest) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found."));
+
         // если для события лимит заявок равен 0 или отключена пре-модерация заявок, то подтверждение заявок не требуется
         if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
-            throw new NotEmptyException("for the event, the application limit is 0 or pre-moderation of applications " +
+            throw new ValidateException("for the event, the application limit is 0 or pre-moderation of applications " +
                     "is disabled, confirmation of applications is not required");
         }
 
@@ -134,14 +137,14 @@ public class RequestServiceImpl implements RequestService {
         // статус можно изменить только у заявок, находящихся в состоянии ожидания (Ожидается код ошибки 409)
         validRequestStatus(requests);
 
+        log.info(UPDATE_STATUS.getMessage());
         switch (dtoRequest.getStatus()) {
             case CONFIRMED:
                 return saveConfirmedStatus(requests, event);
-
             case REJECTED:
                 return saveRejectedStatus(requests, event);
             default:
-                throw new NotEmptyException("Unknown state: " + dtoRequest.getStatus());
+                throw new ValidateException("Unknown state: " + dtoRequest.getStatus());
         }
     }
 
@@ -149,7 +152,7 @@ public class RequestServiceImpl implements RequestService {
     public List<ParticipationRequestDto> getParticipationRequestByUserId(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
-
+        log.info(GET_MODELS.getMessage());
         return requestRepository.findAllByRequesterId(userId).stream()
                 .map(ParticipationRequestMapper::mapToParticipationRequestDto)
                 .collect(Collectors.toList());
@@ -165,26 +168,26 @@ public class RequestServiceImpl implements RequestService {
 
         // инициатор события не может добавить запрос на участие в своём событии
         if (userId.equals(event.getInitiator().getId())) {
-            throw new NotEmptyException("The initiator of the event cannot add a request to participate " +
+            throw new ValidateException("The initiator of the event cannot add a request to participate " +
                     "in his event.");
         }
         // нельзя участвовать в неопубликованном событии
         if (event.getState() != PUBLISHED) {
-            throw new NotEmptyException("You cannot participate in an unpublished event.");
+            throw new ValidateException("You cannot participate in an unpublished event.");
         }
         // если у события достигнут лимит запросов на участие - необходимо вернуть ошибку
         validParticipantLimit(event);
         // нельзя добавить повторный запрос
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
-            throw new NotEmptyException("You cannot add a repeat request.");
+            throw new ValidateException("You cannot add a repeat request.");
         }
         ParticipationRequest newRequest = requestRepository.save(mapToNewParticipationRequest(event, user));
+        log.info(SAVE_MODEL.getMessage(), newRequest);
 
         if (newRequest.getStatus() == CONFIRMED) {
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);
         }
-
         return mapToParticipationRequestDto(newRequest);
     }
 
@@ -194,7 +197,7 @@ public class RequestServiceImpl implements RequestService {
         ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId)
                 .orElseThrow(() -> new NotFoundException("Request with id=" + requestId + " was not found"));
         request.setStatus(REJECTED);
-
+        log.info(UPDATE_MODEL.getMessage(), request);
         return mapToParticipationRequestDto(requestRepository.save(request));
     }
 }

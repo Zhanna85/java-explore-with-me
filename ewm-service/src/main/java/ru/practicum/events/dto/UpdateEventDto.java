@@ -1,21 +1,19 @@
 package ru.practicum.events.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import ru.practicum.events.EventState;
+import lombok.*;
+import ru.practicum.events.StateActionEvent;
 import ru.practicum.events.model.Location;
 
 import javax.validation.constraints.Future;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-import static ru.practicum.Constants.PATTERN_DATE;
+import static ru.practicum.util.Constants.PATTERN_DATE;
 
 @Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateEventDto {
@@ -35,7 +33,7 @@ public class UpdateEventDto {
     private Boolean paid; // Нужно ли оплачивать участие в событии. Default: false;
     private Integer participantLimit; // Ограничение на количество участников.
     private Boolean requestModeration; // Нужна ли пре-модерация заявок на участие.
-    private EventState stateAction; // Изменение состояния события;
+    private StateActionEvent stateAction; // Изменение состояния события;
 
     @Size(max = 120, min = 3)
     private String title; // Заголовок события;

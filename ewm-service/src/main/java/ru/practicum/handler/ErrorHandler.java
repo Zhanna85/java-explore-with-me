@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-import static ru.practicum.Constants.PATTERN_DATE;
+import static ru.practicum.util.Constants.PATTERN_DATE;
 
 @RestControllerAdvice
 @Slf4j
@@ -42,7 +42,7 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler({ConstraintViolationException.class, NotEmptyException.class})
+    @ExceptionHandler({ConstraintViolationException.class, ValidateException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> handleConstraintViolationException(final RuntimeException exception) {
         log.error("Код ошибки: {}, {}", HttpStatus.CONFLICT, exception.getMessage());
@@ -56,7 +56,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleViolationDateException(final ViolationDateException exception) {
+    public Map<String, String> handleViolationDateException(final ValidateDateException exception) {
         log.error("Код ошибки: {}, {}", HttpStatus.BAD_REQUEST, exception.getMessage());
         return Map.of(
                 "status", "BAD_REQUEST",

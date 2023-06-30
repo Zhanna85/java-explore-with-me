@@ -12,7 +12,7 @@ import ru.practicum.users.dto.UserShortDto;
 
 import java.time.LocalDateTime;
 
-import static ru.practicum.Constants.PATTERN_DATE;
+import static ru.practicum.util.Constants.PATTERN_DATE;
 
 @Setter
 @Getter
@@ -22,12 +22,12 @@ public class EventFullDto {
     private String annotation; // Краткое описание;
     private CategoryDto category; // Категория;
 
-    @JsonFormat(pattern = PATTERN_DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN_DATE)
     private LocalDateTime createdOn; // Дата и время создания события (в формате "yyyy-MM-dd HH:mm:ss")
     private String description; // Полное описание события;
     private int confirmedRequests; // Количество одобренных заявок на участие в данном событии;
 
-    @JsonFormat(pattern = PATTERN_DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN_DATE)
     private LocalDateTime eventDate; // Дата и время на которые намечено событие (в формате "yyyy-MM-dd HH:mm:ss");
     private Long id; // Идентификатор;
     private UserShortDto initiator; // Инициатор;
@@ -35,10 +35,10 @@ public class EventFullDto {
     private boolean paid; // Нужно ли оплачивать участие;
     private int participantLimit; // Ограничение на количество участников;
 
-    @JsonFormat(pattern = PATTERN_DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN_DATE)
     private LocalDateTime publishedOn; // Дата и время публикации события (в формате "yyyy-MM-dd HH:mm:ss");
     private boolean requestModeration; // Нужна ли пре-модерация заявок на участие, default: true;
     private EventState state; // Список состояний жизненного цикла события;
     private String title; // Заголовок;
-    private int views; // Количество просмотров события.
+    private int views = 0; // Количество просмотров события.
 }
