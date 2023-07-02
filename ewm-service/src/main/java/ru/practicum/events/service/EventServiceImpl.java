@@ -26,11 +26,11 @@ import ru.practicum.users.repository.UserRepository;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.practicum.events.SortEvents.EVENT_DATE;
+import static ru.practicum.events.SortEvents.VIEWS;
 import static ru.practicum.util.Constants.*;
 import static ru.practicum.util.Messages.*;
 import static ru.practicum.events.EventState.*;
@@ -171,6 +171,28 @@ public class EventServiceImpl implements EventService {
         return Long.valueOf(uri[uri.length - 1]);
     }
 
+    private void saveViewInEvent(List<Event> events) {
+        List<EventShortDto> result = events.stream()
+                .map(EventMapper::mapToEventShortDto)
+                .collect(Collectors.toList());
+        LocalDateTime min = events.stream().map(Event::getCreatedOn).min(LocalDateTime::compareTo).get();
+        String start = min.format(DateTimeFormatter.ofPattern(PATTERN_DATE));
+        List<String> uris = result
+                .stream()
+                .map(eventShortDto -> "/events/" + eventShortDto.getId())
+                .collect(Collectors.toList());
+        List<ViewStats> views = statsClient.getStats(start, END_DATE, uris, null).getBody();
+
+        Map<Long, Integer> mapIdHits = new HashMap<>();
+        views.forEach(viewStats -> mapIdHits.put(getId(viewStats.getUri()), viewStats.getHits()));
+
+        result.forEach(eventShortDto -> {
+            if (mapIdHits.containsKey(eventShortDto.getId())) {
+                eventShortDto.setViews(mapIdHits.get(eventShortDto.getId()));
+            }
+        });
+    }
+
     @Override
     public List<EventShortDto> getAllEventsByUserId(Long userId, int from, int size) {
         log.info(GET_MODELS.getMessage());
@@ -252,17 +274,17 @@ public class EventServiceImpl implements EventService {
                                                Integer size,
                                                HttpServletRequest request) {
         log.info(GET_MODELS.getMessage());
-        validDateParam(rangeStart, rangeEnd);
-        PaginationSetup pageable = new PaginationSetup(from, size, Sort.unsorted());;
+        validDateParam(rangeStart, rangeEnd); // проверяем даты
+        PaginationSetup pageable = new PaginationSetup(from, size, Sort.unsorted()); // сортировка
         final LocalDateTime currentDate = LocalDateTime.now();
         // это публичный эндпоинт, соответственно в выдаче должны быть только опубликованные события
         final EventState state = PUBLISHED;
         List<Event> events;
 
-        if (sort.equals(EVENT_DATE)) {
+        if (sort.equals(EVENT_DATE)) { // если сортировка по дате события
             pageable = new PaginationSetup(from, size, Sort.by("eventDate"));
         }
-        if (onlyAvailable) {
+        if (onlyAvailable) { // если параметр onlyAvailable = true
             events = eventRepository.findAllPublishStateOnlyNotAvailable(text, categories, paid, rangeStart, rangeEnd,
                     currentDate, state, pageable);
         } else {
@@ -270,28 +292,23 @@ public class EventServiceImpl implements EventService {
                     currentDate, state, pageable);
         }
 
-        List<EventShortDto> result = events.stream()
-                .map(EventMapper::mapToEventShortDto)
-                .collect(Collectors.toList());
+        List<EventShortDto> result = new ArrayList<>();
 
         // информация о каждом событии должна включать в себя количество просмотров и количество уже одобренных заявок на участие
-        LocalDateTime min = events.stream().map(Event::getCreatedOn).min(LocalDateTime::compareTo).get();
-        String start = min.format(DateTimeFormatter.ofPattern(PATTERN_DATE));
-        List<String> uris = result
-                .stream()
-                .map(event -> "/events/" + event.getId())
-                .collect(Collectors.toList());
-        List<ViewStats> views = statsClient.getStats(start, END_DATE, uris, null).getBody();
-
+        saveViewInEvent(events); // формируем список result с просмотрами
         // информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики
         statsClient.saveStats(APP, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        return events.stream()
-                .map(EventMapper::mapToEventShortDto)
-                .collect(Collectors.toList());
+
+        if (sort.equals(VIEWS)) { // если сортировка по количеству просмотров
+           return result.stream()
+                    .sorted(Comparator.comparingLong(EventShortDto::getViews))
+                    .collect(Collectors.toList());
+        }
+
+        return result;
     }
 
-    @Override
-    public EventFullDto getEventByIdPublic(Long id,
+    @Override    public EventFullDto getEventByIdPublic(Long id,
                                            HttpServletRequest request) {
         log.info(GET_MODEL_BY_ID.getMessage(), id);
         Event event = getEventById(id);
