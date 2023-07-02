@@ -6,7 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.events.Sort;
+import ru.practicum.events.SortEvents;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.service.EventService;
@@ -38,7 +38,7 @@ public class PublicEventController {
             @RequestParam String text,
 
             // список идентификаторов категорий в которых будет вестись поиск
-            @RequestParam(defaultValue = "") List<Long> categories,
+            @RequestParam List<Long> categories,
 
             // поиск только платных/бесплатных событий
             @RequestParam Boolean paid,
@@ -59,7 +59,7 @@ public class PublicEventController {
             @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size,
             HttpServletRequest request
     ) {
-        Sort sortParam = Sort.from(sort)
+        SortEvents sortParam = SortEvents.from(sort)
                 .orElseThrow(() -> new ValidationException("Unknown param sort: " + sort));
 
         log.info("Get events with parameters: text {}, categories {}, paid {}, rangeStart {}, rangeEnd {}, " +

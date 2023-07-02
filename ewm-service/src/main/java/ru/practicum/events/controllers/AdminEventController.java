@@ -33,20 +33,20 @@ public class AdminEventController {
     @ResponseStatus(value = HttpStatus.OK)
     public Collection<EventFullDto> getEvents(
             // Список id пользователей, чьи события нужно найти
-            @RequestParam(defaultValue = "") List<Long> users,
+            @RequestParam List<Long> users,
 
             // список состояний в которых находятся искомые события
-            @RequestParam(defaultValue = "") List<String> states,
+            @RequestParam List<String> states,
 
             // список id категорий в которых будет вестись поиск
-            @RequestParam(defaultValue = "") List<Long> categories,
+            @RequestParam List<Long> categories,
 
             // дата и время не раньше которых должно произойти событие
-            @RequestParam(value = "rangeStart") @FutureOrPresent
+            @RequestParam @FutureOrPresent
             @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeStart,
 
             // дата и время не позже которых должно произойти событие
-            @RequestParam(value = "rangeEnd") @Future @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeEnd,
+            @RequestParam @Future @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeEnd,
             @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
             @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         log.info("Get events users {} with parameters: states {}, categories {}, rangeStart {}, rangeEnd {}, from {}, " +

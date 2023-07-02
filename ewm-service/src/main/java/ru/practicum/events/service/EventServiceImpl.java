@@ -3,8 +3,12 @@ package ru.practicum.events.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.dto.ViewStats;
+import ru.practicum.events.EventState;
+import ru.practicum.events.SortEvents;
 import ru.practicum.util.PaginationSetup;
 import ru.practicum.StatsClient;
 import ru.practicum.categories.model.Category;
@@ -21,11 +25,13 @@ import ru.practicum.users.repository.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static ru.practicum.events.Sort.EVENT_DATE;
-import static ru.practicum.util.Constants.APP;
+import static ru.practicum.events.SortEvents.EVENT_DATE;
+import static ru.practicum.util.Constants.*;
 import static ru.practicum.util.Messages.*;
 import static ru.practicum.events.EventState.*;
 import static ru.practicum.events.dto.EventMapper.mapToEventFullDto;
@@ -160,6 +166,11 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    private Long getId(String url) {
+        String[] uri = url.split("/");
+        return Long.valueOf(uri[uri.length - 1]);
+    }
+
     @Override
     public List<EventShortDto> getAllEventsByUserId(Long userId, int from, int size) {
         log.info(GET_MODELS.getMessage());
@@ -213,7 +224,12 @@ public class EventServiceImpl implements EventService {
                                                 Integer from,
                                                 Integer size) {
         log.info(GET_MODELS.getMessage());
-        return null;
+        validDateParam(rangeStart, rangeEnd);
+        PaginationSetup pageable = new PaginationSetup(from, size, Sort.unsorted());
+        List<Event> events = eventRepository.findAllForAdmin(users, states, categories, rangeStart, rangeEnd,pageable);
+        return events.stream()
+                .map(EventMapper::mapToEventFullDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -231,30 +247,47 @@ public class EventServiceImpl implements EventService {
                                                LocalDateTime rangeStart,
                                                LocalDateTime rangeEnd,
                                                Boolean onlyAvailable,
-                                               Sort sort,
+                                               SortEvents sort,
                                                Integer from,
                                                Integer size,
                                                HttpServletRequest request) {
         log.info(GET_MODELS.getMessage());
         validDateParam(rangeStart, rangeEnd);
-        PaginationSetup pageable;
+        PaginationSetup pageable = new PaginationSetup(from, size, Sort.unsorted());;
+        final LocalDateTime currentDate = LocalDateTime.now();
+        // это публичный эндпоинт, соответственно в выдаче должны быть только опубликованные события
+        final EventState state = PUBLISHED;
+        List<Event> events;
 
         if (sort.equals(EVENT_DATE)) {
             pageable = new PaginationSetup(from, size, Sort.by("eventDate"));
+        }
+        if (onlyAvailable) {
+            events = eventRepository.findAllPublishStateOnlyNotAvailable(text, categories, paid, rangeStart, rangeEnd,
+                    currentDate, state, pageable);
         } else {
-            pageable = new PaginationSetup(from, size, Sort.unsorted());
+            events = eventRepository.findAllPublishStateOnlyAvailable(text,categories,paid, rangeStart, rangeEnd,
+                    currentDate, state, pageable);
         }
 
-        LocalDateTime currentDate = LocalDateTime.now();
-        List<Event> events = eventRepository.findAllPublish(text, categories, paid, rangeStart, rangeEnd, currentDate,
-                onlyAvailable, pageable);
-        // это публичный эндпоинт, соответственно в выдаче должны быть только опубликованные события
-        // текстовый поиск (по аннотации и подробному описанию) должен быть без учета регистра букв
+        List<EventShortDto> result = events.stream()
+                .map(EventMapper::mapToEventShortDto)
+                .collect(Collectors.toList());
 
         // информация о каждом событии должна включать в себя количество просмотров и количество уже одобренных заявок на участие
+        LocalDateTime min = events.stream().map(Event::getCreatedOn).min(LocalDateTime::compareTo).get();
+        String start = min.format(DateTimeFormatter.ofPattern(PATTERN_DATE));
+        List<String> uris = result
+                .stream()
+                .map(event -> "/events/" + event.getId())
+                .collect(Collectors.toList());
+        List<ViewStats> views = statsClient.getStats(start, END_DATE, uris, null).getBody();
+
         // информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики
         statsClient.saveStats(APP, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        return null;
+        return events.stream()
+                .map(EventMapper::mapToEventShortDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -267,9 +300,13 @@ public class EventServiceImpl implements EventService {
             throw new ValidateException("Event with id=" + id + " not published");
         }
         // информация о событии должна включать в себя количество просмотров
-        statsClient.getStats();
+        String start = event.getCreatedOn().format(DateTimeFormatter.ofPattern(PATTERN_DATE));
+        List<String> uris = List.of("/events/" + event.getId());
+        ViewStats view = statsClient.getStats(start, END_DATE, uris, null).getBody().stream().findAny().get();
+        EventFullDto fullDto = mapToEventFullDto(eventRepository.save(event));
+        fullDto.setViews(view.getHits());
         // информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики
         statsClient.saveStats(APP, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        return mapToEventFullDto(eventRepository.save(event));
+        return fullDto;
     }
 }

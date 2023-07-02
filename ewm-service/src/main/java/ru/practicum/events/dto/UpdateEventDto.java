@@ -30,7 +30,7 @@ public class UpdateEventDto {
     @JsonFormat(pattern = PATTERN_DATE)
     private LocalDateTime eventDate; // Дата и время на которые намечено событие (в формате "yyyy-MM-dd HH:mm:ss");
     private Location location; // Широта и долгота места проведения события;
-    private Boolean paid; // Нужно ли оплачивать участие в событии. Default: false;
+    private Boolean paid; // Нужно ли оплачивать участие в событии.
     private Integer participantLimit; // Ограничение на количество участников.
     private Boolean requestModeration; // Нужна ли пре-модерация заявок на участие.
     private StateActionEvent stateAction; // Изменение состояния события;

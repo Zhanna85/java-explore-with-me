@@ -2,14 +2,14 @@ package ru.practicum.events;
 
 import java.util.Optional;
 
-public enum Sort {
+public enum SortEvents {
     // Сортировка по дате
     EVENT_DATE,
     // Сортировка по количеству просмотров
     VIEWS;
 
-    public static Optional<Sort> from(String stringState) {
-        for (Sort state : values()) {
+    public static Optional<SortEvents> from(String stringState) {
+        for (SortEvents state : values()) {
             if (state.name().equalsIgnoreCase(stringState)) {
                 return Optional.of(state);
             }

@@ -1,6 +1,6 @@
 package ru.practicum.events.service;
 
-import ru.practicum.events.Sort;
+import ru.practicum.events.SortEvents;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.dto.NewEventDto;
@@ -26,7 +26,7 @@ public interface EventService {
     EventFullDto updateEventByIdAdmin(Long eventId, UpdateEventDto eventDto);
 
     List<EventShortDto> getEventsPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                        LocalDateTime rangeEnd, Boolean onlyAvailable, Sort sort, Integer from,
+                                        LocalDateTime rangeEnd, Boolean onlyAvailable, SortEvents sort, Integer from,
                                         Integer size, HttpServletRequest request);
 
     EventFullDto getEventByIdPublic(Long id, HttpServletRequest request);
