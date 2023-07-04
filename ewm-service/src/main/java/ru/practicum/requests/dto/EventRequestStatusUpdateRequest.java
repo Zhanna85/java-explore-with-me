@@ -8,6 +8,6 @@ import java.util.Set;
 @Data
 public class EventRequestStatusUpdateRequest {
 
-    private Set<Integer> requestIds; // Идентификаторы запросов на участие в событии текущего пользователя;
+    private Set<Long> requestIds; // Идентификаторы запросов на участие в событии текущего пользователя;
     private EventRequestStatus status; // Статус заявки.
 }

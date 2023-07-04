@@ -21,5 +21,5 @@ public class EventShortDto {
     private UserShortDto initiator; // Инициатор;
     private Boolean paid; // Нужно ли оплачивать участие;
     private String title; // Заголовок;
-    private Integer views; // Количество просмотров события.
+    private Long views; // Количество просмотров события.
 }

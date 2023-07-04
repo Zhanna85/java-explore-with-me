@@ -35,20 +35,19 @@ public class PublicEventController {
     @ResponseStatus(value = HttpStatus.OK)
     public Collection<EventShortDto> getEventsPublic(
             // текст для поиска в содержимом аннотации и подробном описании события
-            @RequestParam String text,
+            @RequestParam(required = false) String text,
 
             // список идентификаторов категорий в которых будет вестись поиск
-            @RequestParam List<Long> categories,
+            @RequestParam(required = false) List<Long> categories,
 
             // поиск только платных/бесплатных событий
-            @RequestParam Boolean paid,
+            @RequestParam(required = false) Boolean paid,
 
             // дата и время не раньше которых должно произойти событие
-            @RequestParam @FutureOrPresent
-            @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeStart,
+            @RequestParam(required = false) @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeStart,
 
             // дата и время не позже которых должно произойти событие
-            @RequestParam @Future @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeEnd,
+            @RequestParam(required = false) @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeEnd,
 
             // только события у которых не исчерпан лимит запросов на участие
             @RequestParam(defaultValue = "false") Boolean onlyAvailable,

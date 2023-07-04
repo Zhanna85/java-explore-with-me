@@ -26,7 +26,7 @@ public class ParticipationRequestMapper {
         request.setRequester(user);
 
         //если для события отключена пре-модерация запросов на участие, то запрос должен автоматически перейти в состояние подтвержденного
-        if (!event.getRequestModeration()) {
+        if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             request.setStatus(CONFIRMED);
         }
         return request;

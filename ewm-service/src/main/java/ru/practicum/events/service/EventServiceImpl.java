@@ -3,7 +3,6 @@ package ru.practicum.events.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.dto.ViewStats;
@@ -92,6 +91,9 @@ public class EventServiceImpl implements EventService {
         if (eventDto.getParticipantLimit() != null) {
             event.setParticipantLimit(eventDto.getParticipantLimit());
         }
+        if (eventDto.getRequestModeration() != null) {
+            event.setRequestModeration(eventDto.getRequestModeration());
+        }
         if (eventDto.getTitle() != null) {
             event.setTitle(eventDto.getTitle());
         }
@@ -126,6 +128,9 @@ public class EventServiceImpl implements EventService {
         if (eventDto.getParticipantLimit() != null) {
             event.setParticipantLimit(eventDto.getParticipantLimit());
         }
+        if (eventDto.getRequestModeration() != null) {
+            event.setRequestModeration(eventDto.getRequestModeration());
+        }
         if (eventDto.getTitle() != null) {
             event.setTitle(eventDto.getTitle());
         }
@@ -150,11 +155,13 @@ public class EventServiceImpl implements EventService {
             event.setLon(eventDto.getLocation().getLon());
         }
         // Дата начала изменяемого события должна быть не ранее чем за час от даты публикации.
-        if (eventDto.getEventDate() != null && eventDto.getEventDate().isAfter(event.getPublishedOn().plusHours(1))) {
-            event.setEventDate(eventDto.getEventDate());
-        } else {
-            throw new ValidateDateException("The start date of the event being modified must be no earlier than an hour " +
-                    "from the date of publication.");
+        if (eventDto.getEventDate() != null && event.getState().equals(PUBLISHED)) {
+            if (eventDto.getEventDate().isAfter(event.getPublishedOn().plusHours(1))) {
+                event.setEventDate(eventDto.getEventDate());
+            } else {
+                throw new ValidateDateException("The start date of the event being modified must be no earlier than an hour " +
+                        "from the date of publication.");
+            }
         }
     }
 
@@ -175,15 +182,14 @@ public class EventServiceImpl implements EventService {
         List<EventShortDto> result = events.stream()
                 .map(EventMapper::mapToEventShortDto)
                 .collect(Collectors.toList());
-        LocalDateTime min = events.stream().map(Event::getCreatedOn).min(LocalDateTime::compareTo).get();
-        String start = min.format(DateTimeFormatter.ofPattern(PATTERN_DATE));
+        String start = LocalDateTime.now().minusDays(1000).format(DateTimeFormatter.ofPattern(PATTERN_DATE));
         List<String> uris = result
                 .stream()
                 .map(eventShortDto -> "/events/" + eventShortDto.getId())
                 .collect(Collectors.toList());
+        log.info(GET_STATS.getMessage());
         List<ViewStats> views = statsClient.getStats(start, END_DATE, uris, null).getBody();
-
-        Map<Long, Integer> mapIdHits = new HashMap<>();
+        Map<Long, Long> mapIdHits = new HashMap<>();
         views.forEach(viewStats -> mapIdHits.put(getId(viewStats.getUri()), viewStats.getHits()));
 
         result.forEach(eventShortDto -> {
@@ -191,6 +197,20 @@ public class EventServiceImpl implements EventService {
                 eventShortDto.setViews(mapIdHits.get(eventShortDto.getId()));
             }
         });
+    }
+
+    private LocalDateTime getRangeStart(LocalDateTime rangeStart) {
+        if (rangeStart == null) {
+            return LocalDateTime.now();
+        }
+        return rangeStart;
+    }
+
+    private LocalDateTime getRangeEnd(LocalDateTime rangeEnd) {
+        if (rangeEnd == null) {
+            return LocalDateTime.now().plusDays(1000);
+        }
+        return rangeEnd;
     }
 
     @Override
@@ -239,7 +259,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventFullDto> getAllEventsAdmin(List<Long> users,
-                                                List<String> states,
+                                                List<EventState> states,
                                                 List<Long> categories,
                                                 LocalDateTime rangeStart,
                                                 LocalDateTime rangeEnd,
@@ -248,18 +268,22 @@ public class EventServiceImpl implements EventService {
         log.info(GET_MODELS.getMessage());
         validDateParam(rangeStart, rangeEnd);
         PaginationSetup pageable = new PaginationSetup(from, size, Sort.unsorted());
-        List<Event> events = eventRepository.findAllForAdmin(users, states, categories, rangeStart, rangeEnd,pageable);
+        List<Event> events = eventRepository.findAllForAdmin(users, states, categories, getRangeStart(rangeStart),
+                getRangeEnd(rangeEnd), pageable).stream().collect(Collectors.toList());
         return events.stream()
                 .map(EventMapper::mapToEventFullDto)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public EventFullDto updateEventByIdAdmin(Long eventId, UpdateEventDto eventDto) {
         Event event = getEventById(eventId);
         updateEventAdmin(event, eventDto);
         log.info(UPDATE_MODEL.getMessage(), event);
-        return mapToEventFullDto(eventRepository.save(event));
+        event = eventRepository.save(event);
+        log.info(SAVE_MODEL.getMessage(), event);
+        return mapToEventFullDto(event);
     }
 
     @Override
@@ -276,7 +300,6 @@ public class EventServiceImpl implements EventService {
         log.info(GET_MODELS.getMessage());
         validDateParam(rangeStart, rangeEnd); // проверяем даты
         PaginationSetup pageable = new PaginationSetup(from, size, Sort.unsorted()); // сортировка
-        final LocalDateTime currentDate = LocalDateTime.now();
         // это публичный эндпоинт, соответственно в выдаче должны быть только опубликованные события
         final EventState state = PUBLISHED;
         List<Event> events;
@@ -285,11 +308,11 @@ public class EventServiceImpl implements EventService {
             pageable = new PaginationSetup(from, size, Sort.by("eventDate"));
         }
         if (onlyAvailable) { // если параметр onlyAvailable = true
-            events = eventRepository.findAllPublishStateOnlyNotAvailable(text, categories, paid, rangeStart, rangeEnd,
-                    currentDate, state, pageable);
+            events = eventRepository.findAllPublishStateOnlyNotAvailable(state, getRangeStart(rangeStart),
+                    getRangeEnd(rangeEnd), categories, paid, text, pageable);
         } else {
-            events = eventRepository.findAllPublishStateOnlyAvailable(text,categories,paid, rangeStart, rangeEnd,
-                    currentDate, state, pageable);
+            events = eventRepository.findAllPublishStateOnlyAvailable(state, getRangeStart(rangeStart),
+                    getRangeEnd(rangeEnd), categories, paid, text, pageable);
         }
 
         List<EventShortDto> result = new ArrayList<>();
@@ -298,7 +321,7 @@ public class EventServiceImpl implements EventService {
         saveViewInEvent(events); // формируем список result с просмотрами
         // информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики
         statsClient.saveStats(APP, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-
+        log.info(SAVE_STATS.getMessage());
         if (sort.equals(VIEWS)) { // если сортировка по количеству просмотров
            return result.stream()
                     .sorted(Comparator.comparingLong(EventShortDto::getViews))
@@ -312,9 +335,10 @@ public class EventServiceImpl implements EventService {
                                            HttpServletRequest request) {
         log.info(GET_MODEL_BY_ID.getMessage(), id);
         Event event = getEventById(id);
+        log.info(GET_MODEL_BY_ID.getMessage(), event);
         // событие должно быть опубликовано
         if (!event.getState().equals(PUBLISHED)) {
-            throw new ValidateException("Event with id=" + id + " not published");
+            throw new NotFoundException("Event with id=" + id + " not published");
         }
         // информация о событии должна включать в себя количество просмотров
         String start = event.getCreatedOn().format(DateTimeFormatter.ofPattern(PATTERN_DATE));

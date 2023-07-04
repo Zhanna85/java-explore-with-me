@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.events.EventState;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.UpdateEventDto;
 import ru.practicum.events.service.EventService;
@@ -33,22 +34,21 @@ public class AdminEventController {
     @ResponseStatus(value = HttpStatus.OK)
     public Collection<EventFullDto> getEvents(
             // Список id пользователей, чьи события нужно найти
-            @RequestParam List<Long> users,
+            @RequestParam(required = false) List<Long> users,
 
             // список состояний в которых находятся искомые события
-            @RequestParam List<String> states,
+            @RequestParam(required = false) List<EventState> states,
 
             // список id категорий в которых будет вестись поиск
-            @RequestParam List<Long> categories,
+            @RequestParam(required = false) List<Long> categories,
 
             // дата и время не раньше которых должно произойти событие
-            @RequestParam @FutureOrPresent
-            @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeStart,
+            @RequestParam(required = false) @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeStart,
 
             // дата и время не позже которых должно произойти событие
-            @RequestParam @Future @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeEnd,
-            @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
-            @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
+            @RequestParam(required = false) @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeEnd,
+            @RequestParam(defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("Get events users {} with parameters: states {}, categories {}, rangeStart {}, rangeEnd {}, from {}, " +
                 "size {}", users, states, categories, rangeStart, rangeEnd, from, size);
         return eventService.getAllEventsAdmin(users, states, categories, rangeStart, rangeEnd, from, size);

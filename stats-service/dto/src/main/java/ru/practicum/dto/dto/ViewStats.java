@@ -11,5 +11,5 @@ public class ViewStats {
 
     private String app; // Название сервиса, example: ewm-main-service;
     private String uri; // URI сервиса, example: /events/1;
-    private int hits; // Количество просмотров, example: 6.
+    private long hits; // Количество просмотров, example: 6.
 }

@@ -55,7 +55,7 @@ public class PrivateEventController {
     @ResponseStatus(value = HttpStatus.OK)
     public EventFullDto updateEvent(@PathVariable(value = "userId") Long userId,
                                     @PathVariable(value = "eventId") Long eventId,
-                                    @RequestBody UpdateEventDto eventDto) {
+                                    @Valid @RequestBody UpdateEventDto eventDto) {
         log.info("Updating event {} by userId {} and event Id {}", eventDto, userId, eventId);
         return eventService.updateEventById(userId, eventId, eventDto);
     }

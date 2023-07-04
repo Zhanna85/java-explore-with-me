@@ -165,6 +165,7 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found."));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found."));
+        log.info(GET_MODEL_BY_ID.getMessage(), event);
 
         // инициатор события не может добавить запрос на участие в своём событии
         if (userId.equals(event.getInitiator().getId())) {
@@ -172,7 +173,7 @@ public class RequestServiceImpl implements RequestService {
                     "in his event.");
         }
         // нельзя участвовать в неопубликованном событии
-        if (event.getState() != PUBLISHED) {
+        if (!event.getState().equals(PUBLISHED)) {
             throw new ValidateException("You cannot participate in an unpublished event.");
         }
         // если у события достигнут лимит запросов на участие - необходимо вернуть ошибку

@@ -10,21 +10,21 @@ import ru.practicum.requests.service.RequestService;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("/users/{userId}")
+@RequestMapping("/users/{userId}/requests")
 @RequiredArgsConstructor
 @Slf4j
 public class PrivateRequestController {
 
     private final RequestService requestService;
 
-    @GetMapping("/requests")
+    @GetMapping
     @ResponseStatus(value = HttpStatus.OK)
     public Collection<ParticipationRequestDto> getParticipationRequest(@PathVariable(value = "userId") Long userId) {
         log.info("Get participation request by user Id {}", userId);
         return requestService.getParticipationRequestByUserId(userId);
     }
 
-    @PostMapping("/requests")
+    @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
     public ParticipationRequestDto saveParticipationRequest(@PathVariable(value = "userId") Long userId,
                                                             @RequestParam(value = "eventId") Long eventId) {
@@ -32,7 +32,7 @@ public class PrivateRequestController {
         return requestService.saveParticipationRequest(userId, eventId);
     }
 
-    @PatchMapping("/requests/{requestId}/cancel")
+    @PatchMapping("/{requestId}/cancel")
     @ResponseStatus(value = HttpStatus.OK)
     public ParticipationRequestDto updateParticipationRequestStatusToCancel(
             @PathVariable(value = "userId") Long userId,

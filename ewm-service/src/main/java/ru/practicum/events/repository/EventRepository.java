@@ -1,5 +1,7 @@
 package ru.practicum.events.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.events.EventState;
@@ -30,18 +32,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "JOIN FETCH e.initiator " +
             "JOIN FETCH e.category " +
             "where e.state = :state " +
-            "and (:rangeStart is null or e.eventDate BETWEEN :rangeStar and :rangeEnd ) " +
-            "and e.eventDate > :currentDate " +
+            "and e.eventDate BETWEEN :rangeStart and :rangeEnd " +
             "and (:categories is null or e.category.id in :categories) " +
             "and e.participantLimit = 0 or e.participantLimit > e.confirmedRequests " +
             "and (:paid is null or e.paid = :paid) " +
             "and (:text is null or (upper(e.annotation) like upper(concat('%', :text, '%'))) " +
             "or (upper(e.description) like upper(concat('%', :text, '%'))))"
     )
-    List<Event> findAllPublishStateOnlyAvailable(String text, List<Long> categories, Boolean paid,
-                                                 LocalDateTime rangeStart, LocalDateTime rangeEnd,
-                                                 LocalDateTime currentDate, EventState state,
-                                                 PaginationSetup pageable);
+    List<Event> findAllPublishStateOnlyAvailable(EventState state, LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                                 List<Long> categories, Boolean paid,
+                                                 String text, PaginationSetup pageable);
 
     @Query(
              "select e " +
@@ -49,8 +49,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
              "JOIN FETCH e.initiator " +
              "JOIN FETCH e.category " +
              "where e.state = :state " +
-             "and (:rangeStart is null or e.eventDate BETWEEN :rangeStar and :rangeEnd ) " +
-             "and e.eventDate > :currentDate " +
+             "and e.eventDate BETWEEN :rangeStart and :rangeEnd " +
              "and (:categories is null or e.category.id in :categories) " +
              "and e.participantLimit != 0 " +
              "and e.participantLimit = e.confirmedRequests " +
@@ -58,21 +57,20 @@ public interface EventRepository extends JpaRepository<Event, Long> {
              "and (:text is null or (upper(e.annotation) like upper(concat('%', :text, '%'))) " +
              "or (upper(e.description) like upper(concat('%', :text, '%'))))"
              )
-    List<Event> findAllPublishStateOnlyNotAvailable(String text, List<Long> categories, Boolean paid,
-                                                    LocalDateTime rangeStart, LocalDateTime rangeEnd,
-                                                    LocalDateTime currentDate, EventState state,
-                                                    PaginationSetup pageable);
+    List<Event> findAllPublishStateOnlyNotAvailable(EventState state, LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                                    List<Long> categories, Boolean paid,
+                                                    String text, PaginationSetup pageable);
 
     @Query(
             "select e " +
                     "from Event AS e " +
                     "JOIN FETCH e.initiator " +
                     "JOIN FETCH e.category " +
-                    "where (:rangeStart is null or e.eventDate BETWEEN :rangeStar and :rangeEnd ) " +
-                    "and (:users is null or e.initiator in :users) " +
+                    "where e.eventDate BETWEEN :rangeStart and :rangeEnd " +
+                    "and (:users is null or e.initiator.id in :users) " +
                     "and (:categories is null or e.category.id in :categories) " +
-                    "and (:states is null or e.state = :states)"
+                    "and (:states is null or e.state in :states)"
     )
-    List<Event> findAllForAdmin(List<Long> users, List<String> states, List<Long> categories, LocalDateTime rangeStart,
-                                LocalDateTime rangeEnd, PaginationSetup pageable);
+    Page<Event> findAllForAdmin(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart,
+                                LocalDateTime rangeEnd, PageRequest pageable);
 }
