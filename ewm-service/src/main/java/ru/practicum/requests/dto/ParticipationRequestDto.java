@@ -2,12 +2,10 @@ package ru.practicum.requests.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.requests.EventRequestStatus;
 
 import java.time.LocalDateTime;
 
-import static ru.practicum.util.Constants.PATTERN_CREATED_DATE;
 import static ru.practicum.util.Constants.PATTERN_DATE;
 
 @Getter

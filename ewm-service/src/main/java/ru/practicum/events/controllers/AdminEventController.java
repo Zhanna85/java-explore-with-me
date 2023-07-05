@@ -12,8 +12,6 @@ import ru.practicum.events.dto.UpdateEventDto;
 import ru.practicum.events.service.EventService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Future;
-import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.Collection;

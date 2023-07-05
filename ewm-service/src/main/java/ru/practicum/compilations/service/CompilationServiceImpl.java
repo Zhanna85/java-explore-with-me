@@ -27,10 +27,15 @@ import static ru.practicum.compilations.dto.CompilationMapper.mapToCompilationDt
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CompilationServiceImpl implements CompilationService{
+public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
+
+    private Compilation getCompilation(Long id) {
+        return compilationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Compilation with id=" + id + " was not found"));
+    }
 
     @Override
     public List<CompilationDto> getAllCompilation(Boolean pinned, Integer from, Integer size) {
@@ -49,8 +54,7 @@ public class CompilationServiceImpl implements CompilationService{
 
     @Override
     public CompilationDto getCompilationById(Long id) {
-        Compilation compilation = compilationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + id + " was not found"));
+        Compilation compilation = getCompilation(id);
         log.info(GET_MODEL_BY_ID.getMessage(), id);
         return mapToCompilationDto(compilation);
     }
@@ -72,16 +76,14 @@ public class CompilationServiceImpl implements CompilationService{
     @Override
     public void deleteCompilationById(Long compId) {
         log.info(DELETE_MODEL.getMessage(), compId);
-        compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId +" was not found"));
+        getCompilation(compId);
         compilationRepository.deleteById(compId);
     }
 
     @Transactional
     @Override
     public CompilationDto updateCompilationByID(Long compId, UpdateCompilationRequest compilationDto) {
-        Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId +" was not found"));
+        Compilation compilation = getCompilation(compId);
         Boolean pinned = compilationDto.getPinned();
         String title = compilationDto.getTitle();
 

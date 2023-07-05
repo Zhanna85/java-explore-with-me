@@ -13,8 +13,6 @@ import ru.practicum.events.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
-import javax.validation.constraints.Future;
-import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.Collection;

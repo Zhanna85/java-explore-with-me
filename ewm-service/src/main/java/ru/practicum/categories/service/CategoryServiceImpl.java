@@ -24,7 +24,7 @@ import static ru.practicum.categories.dto.CategoryMapper.toCategoryDto;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CategoryServiceImpl implements CategoryService{
+public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 

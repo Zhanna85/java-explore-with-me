@@ -6,6 +6,6 @@ import org.springframework.data.domain.Sort;
 public class PaginationSetup extends PageRequest {
 
     public PaginationSetup(int page, int size, Sort sort) {
-        super(page/size, size, sort);
+        super(page / size, size, sort);
     }
 }

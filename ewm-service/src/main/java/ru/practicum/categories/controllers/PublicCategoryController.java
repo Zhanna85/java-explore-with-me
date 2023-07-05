@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.categories.service.CategoryService;
 
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Collection;
 

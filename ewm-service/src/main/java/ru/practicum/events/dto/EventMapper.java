@@ -45,7 +45,8 @@ public class EventMapper {
         eventFullDto.setParticipantLimit(event.getParticipantLimit());
 
         if (event.getPublishedOn() != null) {
-        eventFullDto.setPublishedOn(event.getPublishedOn());}
+        eventFullDto.setPublishedOn(event.getPublishedOn());
+        }
         eventFullDto.setRequestModeration(event.getRequestModeration());
         eventFullDto.setState(event.getState());
         eventFullDto.setTitle(event.getTitle());
