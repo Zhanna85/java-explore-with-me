@@ -21,7 +21,7 @@ public class StatsClient {
 
     private final WebClient client;
 
-    public StatsClient( @Value("${stats.server.url}") String baseUrl) {
+    public StatsClient(@Value("${stats.server.url}") String baseUrl) {
         this.client = WebClient.create(baseUrl);
     }
 
