@@ -22,13 +22,13 @@ public class PublicCompilationController {
     @ResponseStatus(value = HttpStatus.OK)
     public Collection<CompilationDto> getCompilation(
             // искать только закрепленные/не закрепленные подборки, возможно null
-            @RequestParam Boolean pinned,
+            @RequestParam(required = false) Boolean pinned,
 
             // количество элементов, которые нужно пропустить для формирования текущего набора
-            @RequestParam (value = "from", defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
 
             // количество элементов в наборе
-            @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
+            @RequestParam(required = false, defaultValue = "10") @Min(1) Integer size) {
 
         log.info("Get compilations with parameters pinned {} from {} size {}", pinned, from, size);
         return serviceCompilation.getAllCompilation(pinned, from, size);

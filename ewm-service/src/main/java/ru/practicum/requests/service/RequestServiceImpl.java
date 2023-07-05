@@ -197,7 +197,7 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto updateStatusParticipationRequest(Long userId, Long requestId) {
         ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId)
                 .orElseThrow(() -> new NotFoundException("Request with id=" + requestId + " was not found"));
-        request.setStatus(REJECTED);
+        request.setStatus(CANCELED);
         log.info(UPDATE_MODEL.getMessage(), request);
         return mapToParticipationRequestDto(requestRepository.save(request));
     }

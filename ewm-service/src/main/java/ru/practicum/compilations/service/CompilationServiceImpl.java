@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.compilations.dto.UpdateCompilationRequest;
+import ru.practicum.events.model.Event;
 import ru.practicum.util.PaginationSetup;
 import ru.practicum.compilations.dto.CompilationDto;
 import ru.practicum.compilations.dto.CompilationMapper;
@@ -18,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.practicum.util.Messages.*;
-import static ru.practicum.compilations.dto.CompilationMapper.mapToCompilation;
+import static ru.practicum.compilations.dto.CompilationMapper.mapToNewCompilation;
 import static ru.practicum.compilations.dto.CompilationMapper.mapToCompilationDto;
 
 @Service
@@ -56,10 +58,11 @@ public class CompilationServiceImpl implements CompilationService{
     @Transactional
     @Override
     public CompilationDto saveCompilation(NewCompilationDto compilationDto) {
-        Compilation compilation = mapToCompilation(compilationDto);
+        Compilation compilation = mapToNewCompilation(compilationDto);
 
         if (compilationDto.getEvents() != null) {
-            compilation.setEvents(eventRepository.findAllById(compilationDto.getEvents()));
+            List<Event> events = eventRepository.findAllByIdIn(compilationDto.getEvents());
+            compilation.setEvents(events);
         }
         log.info(SAVE_MODEL.getMessage(), compilation);
         return mapToCompilationDto(compilationRepository.save(compilation));
@@ -76,7 +79,7 @@ public class CompilationServiceImpl implements CompilationService{
 
     @Transactional
     @Override
-    public CompilationDto updateCompilationByID(Long compId, NewCompilationDto compilationDto) {
+    public CompilationDto updateCompilationByID(Long compId, UpdateCompilationRequest compilationDto) {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId +" was not found"));
         Boolean pinned = compilationDto.getPinned();

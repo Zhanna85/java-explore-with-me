@@ -1,6 +1,5 @@
 package ru.practicum.events.repository;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +10,7 @@ import ru.practicum.events.model.Event;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
@@ -34,10 +34,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "where e.state = :state " +
             "and e.eventDate BETWEEN :rangeStart and :rangeEnd " +
             "and (:categories is null or e.category.id in :categories) " +
-            "and e.participantLimit = 0 or e.participantLimit > e.confirmedRequests " +
+            "and (e.participantLimit = 0 or e.participantLimit > e.confirmedRequests) " +
             "and (:paid is null or e.paid = :paid) " +
             "and (:text is null or (upper(e.annotation) like upper(concat('%', :text, '%'))) " +
-            "or (upper(e.description) like upper(concat('%', :text, '%'))))"
+            "or (upper(e.description) like upper(concat('%', :text, '%')))" +
+            "or (upper(e.title) like upper(concat('%', :text, '%'))))"
     )
     List<Event> findAllPublishStateOnlyAvailable(EventState state, LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                  List<Long> categories, Boolean paid,
@@ -71,6 +72,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                     "and (:categories is null or e.category.id in :categories) " +
                     "and (:states is null or e.state in :states)"
     )
-    Page<Event> findAllForAdmin(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart,
+    List<Event> findAllForAdmin(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart,
                                 LocalDateTime rangeEnd, PageRequest pageable);
+
+    List<Event> findAllByIdIn(Set<Long> events);
 }

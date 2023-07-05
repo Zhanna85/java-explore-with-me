@@ -1,5 +1,6 @@
 package ru.practicum.requests.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.requests.EventRequestStatus;
@@ -7,6 +8,7 @@ import ru.practicum.requests.EventRequestStatus;
 import java.time.LocalDateTime;
 
 import static ru.practicum.util.Constants.PATTERN_CREATED_DATE;
+import static ru.practicum.util.Constants.PATTERN_DATE;
 
 @Getter
 @Setter
@@ -14,7 +16,7 @@ import static ru.practicum.util.Constants.PATTERN_CREATED_DATE;
 @AllArgsConstructor
 public class ParticipationRequestDto {
 
-    @DateTimeFormat(pattern = PATTERN_CREATED_DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN_DATE)
     private LocalDateTime created; // Дата и время создания заявки;
     private Long event; // Идентификатор события
     private Long id; // Идентификатор заявки

@@ -54,8 +54,8 @@ public class PublicEventController {
 
             // Вариант сортировки: по дате события или по количеству просмотров
             @RequestParam(defaultValue = "EVENT_DATE") String sort,
-            @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
-            @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size,
+            @RequestParam(defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(defaultValue = "10") @Min(1) Integer size,
             HttpServletRequest request
     ) {
         SortEvents sortParam = SortEvents.from(sort)

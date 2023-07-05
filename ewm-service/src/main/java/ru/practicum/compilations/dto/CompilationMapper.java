@@ -9,9 +9,11 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CompilationMapper {
 
-    public static Compilation mapToCompilation(NewCompilationDto compilationDto) {
+    public static Compilation mapToNewCompilation(NewCompilationDto compilationDto) {
         Compilation compilation = new Compilation();
-        compilation.setPinned(compilationDto.getPinned());
+        if (compilationDto.getPinned() != null) {
+            compilation.setPinned(compilationDto.getPinned());
+        }
         compilation.setTitle(compilationDto.getTitle());
 
         return compilation;

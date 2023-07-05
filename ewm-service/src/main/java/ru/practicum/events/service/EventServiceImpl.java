@@ -2,6 +2,7 @@ package ru.practicum.events.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,6 @@ import ru.practicum.users.repository.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -178,25 +178,24 @@ public class EventServiceImpl implements EventService {
         return Long.valueOf(uri[uri.length - 1]);
     }
 
-    private void saveViewInEvent(List<Event> events) {
-        List<EventShortDto> result = events.stream()
-                .map(EventMapper::mapToEventShortDto)
-                .collect(Collectors.toList());
-        String start = LocalDateTime.now().minusDays(1000).format(DateTimeFormatter.ofPattern(PATTERN_DATE));
+    private void saveViewInEvent(List<EventShortDto> result) {
         List<String> uris = result
                 .stream()
                 .map(eventShortDto -> "/events/" + eventShortDto.getId())
                 .collect(Collectors.toList());
         log.info(GET_STATS.getMessage());
-        List<ViewStats> views = statsClient.getStats(start, END_DATE, uris, null).getBody();
-        Map<Long, Long> mapIdHits = new HashMap<>();
-        views.forEach(viewStats -> mapIdHits.put(getId(viewStats.getUri()), viewStats.getHits()));
+        List<ViewStats> views = statsClient.getStats(START_DATE, END_DATE, uris, null).getBody();
 
-        result.forEach(eventShortDto -> {
-            if (mapIdHits.containsKey(eventShortDto.getId())) {
-                eventShortDto.setViews(mapIdHits.get(eventShortDto.getId()));
-            }
-        });
+        if (views != null) {
+            Map<Long, Long> mapIdHits = new HashMap<>();
+            views.forEach(viewStats -> mapIdHits.put(getId(viewStats.getUri()), viewStats.getHits()));
+
+            result.forEach(eventShortDto -> {
+                if (mapIdHits.containsKey(eventShortDto.getId())) {
+                    eventShortDto.setViews(mapIdHits.get(eventShortDto.getId()));
+                }
+            });
+        }
     }
 
     private LocalDateTime getRangeStart(LocalDateTime rangeStart) {
@@ -267,9 +266,9 @@ public class EventServiceImpl implements EventService {
                                                 Integer size) {
         log.info(GET_MODELS.getMessage());
         validDateParam(rangeStart, rangeEnd);
-        PaginationSetup pageable = new PaginationSetup(from, size, Sort.unsorted());
+        PageRequest pageable = new PaginationSetup(from, size, Sort.unsorted());
         List<Event> events = eventRepository.findAllForAdmin(users, states, categories, getRangeStart(rangeStart),
-                getRangeEnd(rangeEnd), pageable).stream().collect(Collectors.toList());
+                getRangeEnd(rangeEnd), pageable);
         return events.stream()
                 .map(EventMapper::mapToEventFullDto)
                 .collect(Collectors.toList());
@@ -315,37 +314,44 @@ public class EventServiceImpl implements EventService {
                     getRangeEnd(rangeEnd), categories, paid, text, pageable);
         }
 
-        List<EventShortDto> result = new ArrayList<>();
+        List<EventShortDto> result = events.stream()
+                .map(EventMapper::mapToEventShortDto)
+                .collect(Collectors.toList());
 
         // информация о каждом событии должна включать в себя количество просмотров и количество уже одобренных заявок на участие
-        saveViewInEvent(events); // формируем список result с просмотрами
+        saveViewInEvent(result); // формируем список result с просмотрами
+
         // информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики
         statsClient.saveStats(APP, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
         log.info(SAVE_STATS.getMessage());
+
         if (sort.equals(VIEWS)) { // если сортировка по количеству просмотров
            return result.stream()
                     .sorted(Comparator.comparingLong(EventShortDto::getViews))
                     .collect(Collectors.toList());
         }
-
         return result;
     }
 
-    @Override    public EventFullDto getEventByIdPublic(Long id,
-                                           HttpServletRequest request) {
+    @Override
+    public EventFullDto getEventByIdPublic(Long id, HttpServletRequest request) {
         log.info(GET_MODEL_BY_ID.getMessage(), id);
         Event event = getEventById(id);
         log.info(GET_MODEL_BY_ID.getMessage(), event);
+
         // событие должно быть опубликовано
         if (!event.getState().equals(PUBLISHED)) {
             throw new NotFoundException("Event with id=" + id + " not published");
         }
+        EventFullDto fullDto = mapToEventFullDto(event);
+
         // информация о событии должна включать в себя количество просмотров
-        String start = event.getCreatedOn().format(DateTimeFormatter.ofPattern(PATTERN_DATE));
         List<String> uris = List.of("/events/" + event.getId());
-        ViewStats view = statsClient.getStats(start, END_DATE, uris, null).getBody().stream().findAny().get();
-        EventFullDto fullDto = mapToEventFullDto(eventRepository.save(event));
-        fullDto.setViews(view.getHits());
+        List<ViewStats> views = statsClient.getStats(START_DATE, END_DATE, uris, null).getBody();
+
+        if (views != null) {
+            fullDto.setViews(views.size());
+        }
         // информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики
         statsClient.saveStats(APP, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
         return fullDto;

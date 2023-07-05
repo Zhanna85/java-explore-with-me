@@ -6,12 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.compilations.dto.CompilationDto;
 import ru.practicum.compilations.dto.NewCompilationDto;
+import ru.practicum.compilations.dto.UpdateCompilationRequest;
 import ru.practicum.compilations.service.CompilationService;
 
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/admin/compilations/")
+@RequestMapping("/admin/compilations")
 @RequiredArgsConstructor
 @Slf4j
 public class AdminCompilationController {
@@ -28,7 +29,7 @@ public class AdminCompilationController {
     @PatchMapping("/{compId}")
     @ResponseStatus(value = HttpStatus.OK)
     public CompilationDto updateCompilation(@PathVariable(value = "compId") Long compId,
-                                        @RequestBody NewCompilationDto compilationDto) {
+                                        @Valid @RequestBody UpdateCompilationRequest compilationDto) {
         log.info("Update compilation {} by Id {}", compilationDto, compId);
         return compilationService.updateCompilationByID(compId, compilationDto);
     }
