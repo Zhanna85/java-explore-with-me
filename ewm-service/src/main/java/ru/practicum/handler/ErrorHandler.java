@@ -32,7 +32,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleNotValidException(final MethodArgumentNotValidException exception) {
+    public Map<String, String> handleNotValidException(final Exception exception) {
         log.error("Код ошибки: {}, {}", HttpStatus.BAD_REQUEST, exception.getMessage());
         return Map.of(
                 "status", "BAD_REQUEST",
@@ -42,7 +42,7 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler({ConstraintViolationException.class, ValidateException.class})
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> handleConstraintViolationException(final RuntimeException exception) {
         log.error("Код ошибки: {}, {}", HttpStatus.CONFLICT, exception.getMessage());
@@ -64,5 +64,12 @@ public class ErrorHandler {
                 "message", exception.getMessage(),
                 "timestamp", LocalDateTime.now().format(DateTimeFormatter.ofPattern(PATTERN_DATE))
         );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, String> handleException(final Throwable exception) {
+        log.error("Код ошибки: {}, {}", HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+        return Map.of("error", exception.getMessage());
     }
 }

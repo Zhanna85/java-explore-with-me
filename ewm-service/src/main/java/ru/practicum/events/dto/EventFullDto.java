@@ -40,5 +40,5 @@ public class EventFullDto {
     private boolean requestModeration; // Нужна ли пре-модерация заявок на участие, default: true;
     private EventState state; // Список состояний жизненного цикла события;
     private String title; // Заголовок;
-    private long views = 0; // Количество просмотров события.
+    private long views; // Количество просмотров события.
 }

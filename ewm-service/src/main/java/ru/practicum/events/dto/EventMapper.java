@@ -64,8 +64,6 @@ public class EventMapper {
         shortDto.setInitiator(toUserShortDto(event.getInitiator()));
         shortDto.setPaid(event.getPaid());
         shortDto.setTitle(event.getTitle());
-        /*добавить
-        shortDto.setViews();*/
 
         return shortDto;
     }

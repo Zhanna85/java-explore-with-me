@@ -26,11 +26,10 @@ public class PublicCompilationController {
             @RequestParam(required = false) Boolean pinned,
 
             // количество элементов, которые нужно пропустить для формирования текущего набора
-            @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
 
             // количество элементов в наборе
-            @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
-
+            @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("Get compilations with parameters pinned {} from {} size {}", pinned, from, size);
         return serviceCompilation.getAllCompilation(pinned, from, size);
     }
