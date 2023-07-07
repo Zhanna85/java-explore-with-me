@@ -18,7 +18,6 @@ public class PrivateRequestController {
     private final RequestService requestService;
 
     @GetMapping
-    @ResponseStatus(value = HttpStatus.OK)
     public Collection<ParticipationRequestDto> getParticipationRequest(@PathVariable(value = "userId") Long userId) {
         log.info("Get participation request by user Id {}", userId);
         return requestService.getParticipationRequestByUserId(userId);
@@ -33,7 +32,6 @@ public class PrivateRequestController {
     }
 
     @PatchMapping("/{requestId}/cancel")
-    @ResponseStatus(value = HttpStatus.OK)
     public ParticipationRequestDto updateParticipationRequestStatusToCancel(
             @PathVariable(value = "userId") Long userId,
             @PathVariable(value = "requestId") Long requestId) {

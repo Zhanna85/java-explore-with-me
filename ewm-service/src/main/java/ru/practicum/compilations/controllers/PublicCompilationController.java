@@ -2,7 +2,6 @@ package ru.practicum.compilations.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.compilations.dto.CompilationDto;
 import ru.practicum.compilations.service.CompilationService;
@@ -19,7 +18,6 @@ public class PublicCompilationController {
     private final CompilationService serviceCompilation;
 
     @GetMapping
-    @ResponseStatus(value = HttpStatus.OK)
     public Collection<CompilationDto> getCompilation(
             // искать только закрепленные/не закрепленные подборки, возможно null
             @RequestParam(required = false) Boolean pinned,
@@ -35,7 +33,6 @@ public class PublicCompilationController {
     }
 
     @GetMapping("/{compId}")
-    @ResponseStatus(value = HttpStatus.OK)
     public CompilationDto getCompilationById(@PathVariable Long compId) {
         log.info("Get compilation with id {}", compId);
         return serviceCompilation.getCompilationById(compId);
