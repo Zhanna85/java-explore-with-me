@@ -10,7 +10,8 @@ import ru.practicum.users.dto.UserDto;
 import ru.practicum.users.service.UserService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,8 +33,8 @@ public class AdminUserController {
 
     @GetMapping()
     public Collection<UserDto> getUsers(@RequestParam(defaultValue = "") List<Long> ids,
-                                        @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
-                                        @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
+                                        @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                        @RequestParam(value = "size", defaultValue = "10") @Positive Integer size) {
         log.info("Get users by ids {}. Parameters: from {}, size {}", ids, from, size);
         return userService.getUsers(ids, from, size);
     }

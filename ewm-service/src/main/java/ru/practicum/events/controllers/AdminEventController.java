@@ -12,7 +12,8 @@ import ru.practicum.events.dto.UpdateEventDto;
 import ru.practicum.events.service.EventService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -45,8 +46,8 @@ public class AdminEventController {
 
             // дата и время не позже которых должно произойти событие
             @RequestParam(required = false) @DateTimeFormat(pattern = PATTERN_DATE) LocalDateTime rangeEnd,
-            @RequestParam(defaultValue = "0") @Min(0) Integer from,
-            @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("Get events users {} with parameters: states {}, categories {}, rangeStart {}, rangeEnd {}, from {}, " +
                 "size {}", users, states, categories, rangeStart, rangeEnd, from, size);
         return eventService.getAllEventsAdmin(users, states, categories, rangeStart, rangeEnd, from, size);

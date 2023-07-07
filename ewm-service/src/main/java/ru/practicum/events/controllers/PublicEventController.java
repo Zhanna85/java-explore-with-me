@@ -13,7 +13,8 @@ import ru.practicum.events.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -52,8 +53,8 @@ public class PublicEventController {
 
             // Вариант сортировки: по дате события или по количеству просмотров
             @RequestParam(defaultValue = "EVENT_DATE") String sort,
-            @RequestParam(defaultValue = "0") @Min(0) Integer from,
-            @RequestParam(defaultValue = "10") @Min(1) Integer size,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10") @Positive Integer size,
             HttpServletRequest request
     ) {
         SortEvents sortParam = SortEvents.from(sort)
