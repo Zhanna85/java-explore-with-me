@@ -32,24 +32,26 @@ public class EventMapper {
     public static EventFullDto mapToEventFullDto(Event event) {
         EventFullDto eventFullDto = new EventFullDto();
         eventFullDto.setAnnotation(event.getAnnotation());
-        eventFullDto.setCategory(toCategoryDto(event.getCategory()));
-        eventFullDto.setCreatedOn(event.getCreatedOn());
-        eventFullDto.setDescription(event.getDescription());
         eventFullDto.setConfirmedRequests(event.getConfirmedRequests());
         eventFullDto.setEventDate(event.getEventDate());
         eventFullDto.setId(event.getId());
-        eventFullDto.setInitiator(toUserShortDto(event.getInitiator()));
         Location location = new Location(event.getLat(), event.getLon());
         eventFullDto.setLocation(location);
         eventFullDto.setPaid(event.getPaid());
         eventFullDto.setParticipantLimit(event.getParticipantLimit());
+        eventFullDto.setTitle(event.getTitle());
+        eventFullDto.setState(event.getState());
+        EventFullDto.AdditionalEventInformation eventInformation = new EventFullDto.AdditionalEventInformation();
+        eventInformation.setDescription(event.getDescription());
+        eventInformation.setCategory(toCategoryDto(event.getCategory()));
+        eventInformation.setCreatedOn(event.getCreatedOn());
+        eventInformation.setInitiator(toUserShortDto(event.getInitiator()));
+        eventInformation.setRequestModeration(event.getRequestModeration());
 
         if (event.getPublishedOn() != null) {
-        eventFullDto.setPublishedOn(event.getPublishedOn());
+            eventInformation.setPublishedOn(event.getPublishedOn());
         }
-        eventFullDto.setRequestModeration(event.getRequestModeration());
-        eventFullDto.setState(event.getState());
-        eventFullDto.setTitle(event.getTitle());
+        eventFullDto.setEventInformation(eventInformation);
 
         return eventFullDto;
     }
