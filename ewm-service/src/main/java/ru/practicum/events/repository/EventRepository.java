@@ -32,7 +32,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "JOIN FETCH e.initiator " +
             "JOIN FETCH e.category " +
             "where e.state = :state " +
-            "and e.eventDate BETWEEN :rangeStart and :rangeEnd " +
+            "and e.eventDate > :rangeStart " +
             "and (:categories is null or e.category.id in :categories) " +
             "and (e.participantLimit = 0 or e.participantLimit > e.confirmedRequests) " +
             "and (:paid is null or e.paid = :paid) " +
@@ -40,7 +40,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "or (upper(e.description) like upper(concat('%', :text, '%')))" +
             "or (upper(e.title) like upper(concat('%', :text, '%'))))"
     )
-    List<Event> findAllPublishStateOnlyAvailable(EventState state, LocalDateTime rangeStart, LocalDateTime rangeEnd,
+    List<Event> findAllPublishStateOnlyAvailable(EventState state, LocalDateTime rangeStart,
                                                  List<Long> categories, Boolean paid,
                                                  String text, PaginationSetup pageable);
 
@@ -50,7 +50,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
              "JOIN FETCH e.initiator " +
              "JOIN FETCH e.category " +
              "where e.state = :state " +
-             "and e.eventDate BETWEEN :rangeStart and :rangeEnd " +
+             "and e.eventDate > :rangeStart " +
              "and (:categories is null or e.category.id in :categories) " +
              "and e.participantLimit != 0 " +
              "and e.participantLimit = e.confirmedRequests " +
@@ -58,7 +58,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
              "and (:text is null or (upper(e.annotation) like upper(concat('%', :text, '%'))) " +
              "or (upper(e.description) like upper(concat('%', :text, '%'))))"
              )
-    List<Event> findAllPublishStateOnlyNotAvailable(EventState state, LocalDateTime rangeStart, LocalDateTime rangeEnd,
+    List<Event> findAllPublishStateOnlyNotAvailable(EventState state, LocalDateTime rangeStart,
                                                     List<Long> categories, Boolean paid,
                                                     String text, PaginationSetup pageable);
 
@@ -67,13 +67,13 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                     "from Event AS e " +
                     "JOIN FETCH e.initiator " +
                     "JOIN FETCH e.category " +
-                    "where e.eventDate BETWEEN :rangeStart and :rangeEnd " +
+                    "where e.eventDate > :rangeStart " +
                     "and (:users is null or e.initiator.id in :users) " +
                     "and (:categories is null or e.category.id in :categories) " +
                     "and (:states is null or e.state in :states)"
     )
     List<Event> findAllForAdmin(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart,
-                                LocalDateTime rangeEnd, PageRequest pageable);
+                                PageRequest pageable);
 
     List<Event> findAllByIdIn(Set<Long> events);
 }

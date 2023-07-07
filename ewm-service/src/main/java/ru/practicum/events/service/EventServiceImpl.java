@@ -205,11 +205,8 @@ public class EventServiceImpl implements EventService {
         return rangeStart;
     }
 
-    private LocalDateTime getRangeEnd(LocalDateTime rangeEnd) {
-        if (rangeEnd == null) {
-            return LocalDateTime.now().plusDays(1000);
-        }
-        return rangeEnd;
+    private List<Event> getEventsBeforeRangeEnd(List<Event> events, LocalDateTime rangeEnd) {
+        return events.stream().filter(event -> event.getEventDate().isBefore(rangeEnd)).collect(Collectors.toList());
     }
 
     @Override
@@ -268,7 +265,11 @@ public class EventServiceImpl implements EventService {
         validDateParam(rangeStart, rangeEnd);
         PageRequest pageable = new PaginationSetup(from, size, Sort.unsorted());
         List<Event> events = eventRepository.findAllForAdmin(users, states, categories, getRangeStart(rangeStart),
-                getRangeEnd(rangeEnd), pageable);
+                pageable);
+
+        if (rangeEnd != null) {
+            events = getEventsBeforeRangeEnd(events, rangeEnd);
+        }
         return events.stream()
                 .map(EventMapper::mapToEventFullDto)
                 .collect(Collectors.toList());
@@ -307,11 +308,14 @@ public class EventServiceImpl implements EventService {
             pageable = new PaginationSetup(from, size, Sort.by("eventDate"));
         }
         if (onlyAvailable) { // если параметр onlyAvailable = true
-            events = eventRepository.findAllPublishStateOnlyNotAvailable(state, getRangeStart(rangeStart),
-                    getRangeEnd(rangeEnd), categories, paid, text, pageable);
+            events = eventRepository.findAllPublishStateOnlyNotAvailable(state, getRangeStart(rangeStart), categories,
+                    paid, text, pageable);
         } else {
-            events = eventRepository.findAllPublishStateOnlyAvailable(state, getRangeStart(rangeStart),
-                    getRangeEnd(rangeEnd), categories, paid, text, pageable);
+            events = eventRepository.findAllPublishStateOnlyAvailable(state, getRangeStart(rangeStart), categories,
+                    paid, text, pageable);
+        }
+        if (rangeEnd != null) {
+            events = getEventsBeforeRangeEnd(events, rangeEnd);
         }
 
         List<EventShortDto> result = events.stream()
