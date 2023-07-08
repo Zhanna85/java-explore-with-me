@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.*;
 import ru.practicum.categories.dto.CategoryDto;
+import ru.practicum.comments.dto.CommentDto;
 import ru.practicum.events.EventState;
 import ru.practicum.events.model.Location;
 import ru.practicum.users.dto.UserShortDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static ru.practicum.util.Constants.PATTERN_DATE;
 
@@ -52,5 +54,6 @@ public class EventFullDto {
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN_DATE)
         private LocalDateTime createdOn; // Дата и время создания события (в формате "yyyy-MM-dd HH:mm:ss")
+        private List<CommentDto> comments; // комментарии
     }
 }

@@ -28,7 +28,6 @@ public class PrivateEventController {
     private final RequestService requestService;
 
     @GetMapping
-    @ResponseStatus(value = HttpStatus.OK)
     public Collection<EventShortDto> getEventsByUserId(@PathVariable(value = "userId") Long userId, // id текущего пользователя
                                                @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
                                                @RequestParam(value = "size", defaultValue = "10") @Positive Integer size) {
@@ -45,7 +44,6 @@ public class PrivateEventController {
     }
 
     @GetMapping("/{eventId}")
-    @ResponseStatus(value = HttpStatus.OK)
     public EventFullDto getEventById(@PathVariable(value = "userId") Long userId,
                                      @PathVariable(value = "eventId") Long eventId) {
         log.info("Get event by userId {} and event Id {}", userId, eventId);
@@ -53,7 +51,6 @@ public class PrivateEventController {
     }
 
     @PatchMapping("/{eventId}")
-    @ResponseStatus(value = HttpStatus.OK)
     public EventFullDto updateEvent(@PathVariable(value = "userId") Long userId,
                                     @PathVariable(value = "eventId") Long eventId,
                                     @Valid @RequestBody UpdateEventDto eventDto) {
@@ -63,7 +60,6 @@ public class PrivateEventController {
 
     // Получение информации о запросах на участие в событии текущего пользователя.
     @GetMapping("/{eventId}/requests")
-    @ResponseStatus(value = HttpStatus.OK)
     public Collection<ParticipationRequestDto> getParticipationRequestByIdEvent(
             @PathVariable(value = "userId") Long userId,
             @PathVariable(value = "eventId") Long eventId) {
@@ -73,7 +69,6 @@ public class PrivateEventController {
 
     // Изменение статуса (подтверждена, отменена) заявок на участие в событии текущего пользователя.
     @PatchMapping("/{eventId}/requests")
-    @ResponseStatus(value = HttpStatus.OK)
     public EventRequestStatusUpdateResult updateEventRequestStatus(
             @PathVariable(value = "userId") Long userId,
             @PathVariable(value = "eventId") Long eventId,

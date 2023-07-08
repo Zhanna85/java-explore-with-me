@@ -3,7 +3,6 @@ package ru.practicum.events.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.SortEvents;
@@ -31,7 +30,6 @@ public class PublicEventController {
     private final EventService eventService;
 
     @GetMapping
-    @ResponseStatus(value = HttpStatus.OK)
     public Collection<EventShortDto> getEventsPublic(
             // текст для поиска в содержимом аннотации и подробном описании события
             @RequestParam(required = false) String text,
@@ -70,7 +68,6 @@ public class PublicEventController {
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(value = HttpStatus.OK)
     public EventFullDto getEventByIdPublic(@PathVariable(value = "id") Long id,
                                            HttpServletRequest request) {
         log.info("Get event by Id {}", id);
