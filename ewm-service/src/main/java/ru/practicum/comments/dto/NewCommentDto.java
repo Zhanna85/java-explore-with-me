@@ -1,9 +1,6 @@
 package ru.practicum.comments.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -12,6 +9,7 @@ import javax.validation.constraints.Size;
 @Setter
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class NewCommentDto {
 
     @NotBlank

@@ -28,7 +28,7 @@ public class PrivateCommentController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public CommentDto createdComment(@PathVariable(value = "userId") Long userId,
                                      @RequestParam(value = "eventId") Long eventId,
-                                     @RequestBody @Valid NewCommentDto commentDto) {
+                                     @Valid @RequestBody NewCommentDto commentDto) {
         log.info("Creating comment {} by user Id {} and event Id {}", commentDto, userId, eventId);
         return commentService.saveComment(userId, eventId, commentDto);
     }

@@ -27,7 +27,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
                     "where (:author is null or e.author.id in :author) " +
                     "and (:event is null or e.event.id in :event)"
     )
-    List<CommentDto> findAllByAuthorIdOrEventId(Long author, Long event, PageRequest pageable);
+    List<Comment> findAllByAuthorIdOrEventId(Long author, Long event, PageRequest pageable);
 
     List<Comment> findByEventIdIn(Set<Long> longs);
 }

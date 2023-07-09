@@ -140,6 +140,8 @@ public class CommentServiceImpl implements CommentService{
     public List<CommentDto> getCommentsAdmin(Long userId, Long eventId, Integer from, Integer size) {
         log.info(GET_MODELS.getMessage());
         return commentRepository.findAllByAuthorIdOrEventId(userId, eventId,
-                new PaginationSetup(from, size, Sort.unsorted()));
+                new PaginationSetup(from, size, Sort.unsorted())).stream()
+                .map(CommentMapper::mapToCommentDto)
+                .collect(Collectors.toList());
     }
 }

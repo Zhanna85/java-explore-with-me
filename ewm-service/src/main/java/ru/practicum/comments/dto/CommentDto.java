@@ -15,7 +15,7 @@ import static ru.practicum.util.Constants.PATTERN_DATE;
 public class CommentDto {
     private long id; // уникальный идентификатор комментария;
     private String text; // содержимое комментария;
-    private String authorName; // автор комментария;
+    private Long authorId; // автор комментария;
     private Long eventId; // уникальный идентификатор события;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN_DATE)
