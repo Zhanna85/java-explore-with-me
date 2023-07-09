@@ -27,38 +27,7 @@
           "listen": "prerequest",
           "script": {
             "exec": [
-              "const main = async () => {\r",
-              "    const api = new API(pm);\r",
-              "    const rnd = new RandomUtils();\r",
-              "\r",
-              "    let user;\r",
-              "    try {\r",
-              "        user = rnd.getUser();\r",
-              "    } catch(err) {\r",
-              "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
-              "    }\r",
-              "\r",
-              "    pm.request.body.update({\r",
-              "        mode: 'raw',\r",
-              "        raw: JSON.stringify(user),\r",
-              "        options: { raw: { language: 'json' } }\r",
-              "    });\r",
-              "};\r",
-              "\r",
-              "const interval = setInterval(() => {}, 1000);\r",
-              "\r",
-              "setTimeout(async () => \r",
-              "    {\r",
-              "        try {\r",
-              "            await main();\r",
-              "        } catch (e) {\r",
-              "            console.error(e);\r",
-              "        } finally {\r",
-              "            clearInterval(interval);\r",
-              "        }\r",
-              "    },  \r",
-              "    100 \r",
-              ");"
+              ""
             ],
             "type": "text/javascript"
           }
@@ -86,12 +55,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/admin/users",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/admin/users",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "admin",
             "users"
@@ -121,38 +88,7 @@
           "listen": "prerequest",
           "script": {
             "exec": [
-              "const main = async () => {\r",
-              "    const api = new API(pm);\r",
-              "    const rnd = new RandomUtils();\r",
-              "\r",
-              "    let category;\r",
-              "    try {\r",
-              "        category = rnd.getCategory();\r",
-              "    } catch(err) {\r",
-              "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
-              "    }\r",
-              "\r",
-              "    pm.request.body.update({\r",
-              "        mode: 'raw',\r",
-              "        raw: JSON.stringify(category),\r",
-              "        options: { raw: { language: 'json' } }\r",
-              "    });\r",
-              "};\r",
-              "\r",
-              "const interval = setInterval(() => {}, 1000);\r",
-              "\r",
-              "setTimeout(async () => \r",
-              "    {\r",
-              "        try {\r",
-              "            await main();\r",
-              "        } catch (e) {\r",
-              "            console.error(e);\r",
-              "        } finally {\r",
-              "            clearInterval(interval);\r",
-              "        }\r",
-              "    },  \r",
-              "    100 \r",
-              ");"
+              ""
             ],
             "type": "text/javascript"
           }
@@ -180,12 +116,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/admin/categories",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/admin/categories",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "admin",
             "categories"
@@ -217,41 +151,7 @@
           "listen": "prerequest",
           "script": {
             "exec": [
-              "const main = async () => {\r",
-              "    const api = new API(pm);\r",
-              "    const rnd = new RandomUtils();\r",
-              "\r",
-              "    let event;\r",
-              "    try {\r",
-              "        const user = await api.addUser(rnd.getUser());\r",
-              "        pm.collectionVariables.set(\"uid\", user.id)\r",
-              "        const category = await api.addCategory(rnd.getCategory());\r",
-              "        event = rnd.getEvent(category.id);\r",
-              "    } catch(err) {\r",
-              "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
-              "    }\r",
-              "\r",
-              "    pm.request.body.update({\r",
-              "        mode: 'raw',\r",
-              "        raw: JSON.stringify(event),\r",
-              "        options: { raw: { language: 'json' } }\r",
-              "    });\r",
-              "};\r",
-              "\r",
-              "const interval = setInterval(() => {}, 1000);\r",
-              "\r",
-              "setTimeout(async () => \r",
-              "    {\r",
-              "        try {\r",
-              "            await main();\r",
-              "        } catch (e) {\r",
-              "            console.error(e);\r",
-              "        } finally {\r",
-              "            clearInterval(interval);\r",
-              "        }\r",
-              "    },  \r",
-              "    100 \r",
-              ");"
+              ""
             ],
             "type": "text/javascript"
           }
@@ -279,12 +179,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/users/:userId/events",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/events",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -332,12 +230,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/users/:userId/comments?eventId=1",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/comments?eventId=106",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -346,7 +242,7 @@
           "query": [
             {
               "key": "eventId",
-              "value": "1"
+              "value": "106"
             }
           ],
           "variable": [
@@ -380,12 +276,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/users/:userId/comments/:commentId",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/comments/:commentId",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -450,12 +344,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/admin/events/:eventId",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/admin/events/:eventId",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "admin",
             "events",
@@ -464,7 +356,7 @@
           "variable": [
             {
               "key": "eventId",
-              "value": "1"
+              "value": "106"
             }
           ]
         },
@@ -502,12 +394,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/users/:userId/comments?eventId=1",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/comments?eventId=106",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -516,7 +406,7 @@
           "query": [
             {
               "key": "eventId",
-              "value": "1"
+              "value": "106"
             }
           ],
           "variable": [
@@ -559,12 +449,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/users/:userId/comments?eventId=1",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/comments?eventId=106",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -573,7 +461,7 @@
           "query": [
             {
               "key": "eventId",
-              "value": "1"
+              "value": "106"
             }
           ],
           "variable": [
@@ -616,12 +504,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/users/:userId/comments?eventId=1",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/comments?eventId=106",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -630,7 +516,7 @@
           "query": [
             {
               "key": "eventId",
-              "value": "1"
+              "value": "106"
             }
           ],
           "variable": [
@@ -673,12 +559,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/users/:userId/comments?eventId=999",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/comments?eventId=999",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -745,12 +629,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/users/:userId/comments/:commentId",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/comments/:commentId",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -793,12 +675,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/users/:userId/comments/:commentId",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/comments/:commentId",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -840,12 +720,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/users/:userId/comments?from=0&size=10",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/comments?from=0&size=10",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -892,12 +770,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/users/:userId/events/:eventId/comments",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -912,7 +788,7 @@
             },
             {
               "key": "eventId",
-              "value": "1"
+              "value": "106"
             }
           ]
         }
@@ -938,12 +814,10 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/users/:userId/comments/:commentId",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/comments/:commentId",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -994,12 +868,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/users/:userId/comments?eventId=1",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/comments?eventId=106",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -1008,7 +880,7 @@
           "query": [
             {
               "key": "eventId",
-              "value": "1"
+              "value": "106"
             }
           ],
           "variable": [
@@ -1066,12 +938,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/admin/comments/:commentId",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/admin/comments/:commentId",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "admin",
             "comments",
@@ -1110,12 +980,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/admin/comments/:commentId",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/admin/comments/:commentId",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "admin",
             "comments",
@@ -1152,12 +1020,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/admin/comments?userId=1&eventId=1&from=0&size=10",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/admin/comments?userId=1&eventId=106&from=0&size=10",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "admin",
             "comments"
@@ -1169,7 +1035,7 @@
             },
             {
               "key": "eventId",
-              "value": "1"
+              "value": "106"
             },
             {
               "key": "from",
@@ -1203,12 +1069,10 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/admin/comments/:commentId",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/admin/comments/:commentId",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "admin",
             "comments",
@@ -1246,41 +1110,7 @@
           "listen": "prerequest",
           "script": {
             "exec": [
-              "const main = async () => {\r",
-              "    const api = new API(pm);\r",
-              "    const rnd = new RandomUtils();\r",
-              "\r",
-              "    let event;\r",
-              "    try {\r",
-              "        const user = await api.addUser(rnd.getUser());\r",
-              "        pm.collectionVariables.set(\"uid\", user.id)\r",
-              "        const category = await api.addCategory(rnd.getCategory());\r",
-              "        event = rnd.getEvent(category.id);\r",
-              "    } catch(err) {\r",
-              "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
-              "    }\r",
-              "\r",
-              "    pm.request.body.update({\r",
-              "        mode: 'raw',\r",
-              "        raw: JSON.stringify(event),\r",
-              "        options: { raw: { language: 'json' } }\r",
-              "    });\r",
-              "};\r",
-              "\r",
-              "const interval = setInterval(() => {}, 1000);\r",
-              "\r",
-              "setTimeout(async () => \r",
-              "    {\r",
-              "        try {\r",
-              "            await main();\r",
-              "        } catch (e) {\r",
-              "            console.error(e);\r",
-              "        } finally {\r",
-              "            clearInterval(interval);\r",
-              "        }\r",
-              "    },  \r",
-              "    100 \r",
-              ");"
+              ""
             ],
             "type": "text/javascript"
           }
@@ -1311,12 +1141,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/users/:userId/events/:eventId",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/users/:userId/events/:eventId",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "users",
             ":userId",
@@ -1330,13 +1158,40 @@
             },
             {
               "key": "eventId",
-              "value": "1"
+              "value": "106"
             }
           ]
         },
         "description": "Обратите внимание: дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента"
       },
       "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
     }
   ]
 }
