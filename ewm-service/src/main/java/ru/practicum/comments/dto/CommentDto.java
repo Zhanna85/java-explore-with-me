@@ -18,7 +18,7 @@ import static ru.practicum.util.Constants.PATTERN_DATE;
 @NoArgsConstructor
 public class CommentDto {
     @Null(groups = {Marker.OnCreate.class,Marker.OnUpdate.class})
-    private long id; // уникальный идентификатор комментария;
+    private Long id; // уникальный идентификатор комментария;
     @NotBlank
     @Size(min = 2, max = 2000)
     private String text; // содержимое комментария;
