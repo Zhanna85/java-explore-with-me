@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.comments.dto.CommentDto;
-import ru.practicum.comments.dto.NewCommentDto;
 import ru.practicum.comments.service.CommentService;
+import ru.practicum.util.Marker;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -25,19 +25,21 @@ public class PrivateCommentController {
 
     // авторизованный пользователь добавляет комментарий
     @PostMapping("/comments")
+    @Validated({Marker.OnCreate.class})
     @ResponseStatus(value = HttpStatus.CREATED)
     public CommentDto createdComment(@PathVariable(value = "userId") Long userId,
                                      @RequestParam(value = "eventId") Long eventId,
-                                     @Valid @RequestBody NewCommentDto commentDto) {
+                                     @Valid @RequestBody CommentDto commentDto) {
         log.info("Creating comment {} by user Id {} and event Id {}", commentDto, userId, eventId);
         return commentService.saveComment(userId, eventId, commentDto);
     }
 
     // редактирование комментария автором
     @PatchMapping("/comments/{commentId}")
+    @Validated(Marker.OnUpdate.class)
     public CommentDto updateComment(@PathVariable(value = "userId") Long userId,
                                     @PathVariable(value = "commentId") Long commentId,
-                                    @Valid @RequestBody NewCommentDto commentDto) {
+                                    @Valid @RequestBody CommentDto commentDto) {
         log.info("Updating comment {}. Parameters: userId {} and comment Id {}", commentDto, userId, commentId);
         return commentService.updateComment(userId, commentId, commentDto);
     }

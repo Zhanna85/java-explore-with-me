@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.comments.dto.CommentDto;
-import ru.practicum.comments.dto.NewCommentDto;
 import ru.practicum.comments.service.CommentService;
+import ru.practicum.util.Marker;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -43,8 +43,9 @@ public class AdminCommentController {
 
     // отредактировать комментарий
     @PatchMapping("/{commentId}")
+    @Validated(Marker.OnUpdate.class)
     public CommentDto updateCommentAdmin(@PathVariable(value = "commentId") Long commentId,
-                                         @Valid @RequestBody NewCommentDto commentDto) {
+                                         @Valid @RequestBody CommentDto commentDto) {
         log.info("Updating comment {} by comment Id {}", commentDto, commentId);
         return commentService.updateCommentAdmin(commentId, commentDto);
     }

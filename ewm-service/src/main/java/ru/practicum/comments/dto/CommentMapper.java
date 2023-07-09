@@ -8,7 +8,7 @@ import ru.practicum.users.model.User;
 @UtilityClass
 public class CommentMapper {
 
-    public static Comment mapToComment(User user, Event event, NewCommentDto dto) {
+    public static Comment mapToComment(User user, Event event, CommentDto dto) {
         Comment comment = new Comment();
         comment.setText(dto.getText());
         comment.setEvent(event);

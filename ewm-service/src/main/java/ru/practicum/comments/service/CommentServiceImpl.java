@@ -2,12 +2,12 @@ package ru.practicum.comments.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.comments.dto.CommentDto;
 import ru.practicum.comments.dto.CommentMapper;
-import ru.practicum.comments.dto.NewCommentDto;
 import ru.practicum.comments.model.Comment;
 import ru.practicum.comments.repository.CommentRepository;
 import ru.practicum.events.model.Event;
@@ -48,7 +48,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public CommentDto saveComment(Long userId, Long eventId, NewCommentDto commentDto) {
+    public CommentDto saveComment(Long userId, Long eventId, CommentDto commentDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found."));
         Event event = eventRepository.findById(eventId)
@@ -65,9 +65,9 @@ public class CommentServiceImpl implements CommentService {
     // все комментарии автора
     @Override
     public List<CommentDto> getCommentsByUserId(Long userId, Integer from, Integer size) {
-
         log.info(GET_MODELS.getMessage());
-        return commentRepository.findAllByAuthorId(userId, new PaginationSetup(from, size, Sort.unsorted())).stream()
+        PageRequest pageable = new PaginationSetup(from, size, Sort.unsorted());
+        return commentRepository.findAllByAuthorId(userId, pageable).stream()
                 .map(CommentMapper::mapToCommentDto)
                 .collect(Collectors.toList());
     }
@@ -75,7 +75,7 @@ public class CommentServiceImpl implements CommentService {
     // обновление комментария автором
     @Transactional
     @Override
-    public CommentDto updateComment(Long userId, Long commentId, NewCommentDto dto) {
+    public CommentDto updateComment(Long userId, Long commentId, CommentDto dto) {
         Comment comment = getByIdAndAuthorId(commentId, userId);
         comment.setText(dto.getText());
         log.info(UPDATE_MODEL.getMessage(), comment);
@@ -87,7 +87,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto getCommentById(Long userId, Long commentId) {
         Comment comment = getByIdAndAuthorId(commentId, userId);
         log.info(GET_MODEL_BY_ID.getMessage(), commentId);
-        return  mapToCommentDto(comment);
+        return mapToCommentDto(comment);
     }
 
     // удаление комментария автором
@@ -111,7 +111,7 @@ public class CommentServiceImpl implements CommentService {
 
     // редактирование комментария админом
     @Override
-    public CommentDto updateCommentAdmin(Long commentId, NewCommentDto commentDto) {
+    public CommentDto updateCommentAdmin(Long commentId, CommentDto commentDto) {
         Comment comment = getById(commentId);
         comment.setText(commentDto.getText());
         log.info(UPDATE_MODEL.getMessage(), comment);
@@ -138,8 +138,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentDto> getCommentsAdmin(Long userId, Long eventId, Integer from, Integer size) {
         log.info(GET_MODELS.getMessage());
-        return commentRepository.findAllByAuthorIdOrEventId(userId, eventId,
-                new PaginationSetup(from, size, Sort.unsorted())).stream()
+        PageRequest pageable = new PaginationSetup(from, size, Sort.unsorted());
+        return commentRepository.findAllByAuthorIdOrEventId(userId, eventId, pageable).stream()
                 .map(CommentMapper::mapToCommentDto)
                 .collect(Collectors.toList());
     }
