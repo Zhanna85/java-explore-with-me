@@ -2,7 +2,6 @@ package ru.practicum.comments.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +30,7 @@ import static ru.practicum.util.Messages.*;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class CommentServiceImpl implements CommentService{
+public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;

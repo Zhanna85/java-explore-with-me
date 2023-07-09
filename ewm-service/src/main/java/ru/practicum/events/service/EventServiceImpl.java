@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.comments.dto.CommentDto;
 import ru.practicum.comments.dto.CommentMapper;
-import ru.practicum.comments.model.Comment;
 import ru.practicum.comments.repository.CommentRepository;
 import ru.practicum.dto.dto.ViewStats;
 import ru.practicum.events.EventState;
